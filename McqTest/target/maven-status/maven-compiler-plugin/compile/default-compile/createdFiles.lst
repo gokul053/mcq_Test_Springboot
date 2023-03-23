@@ -1,0 +1,7 @@
+com\concertidc\mcqtest\controller\McqController.class
+com\concertidc\mcqtest\McqTestApplication.class
+com\concertidc\mcqtest\service\McqService.class
+com\concertidc\mcqtest\repository\UsersRepository.class
+com\concertidc\mcqtest\entity\Answers.class
+com\concertidc\mcqtest\service\McqServiceImpl.class
+com\concertidc\mcqtest\entity\Users.class
