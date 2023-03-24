@@ -1,6 +1,8 @@
 package com.concertidc.mcqtest.service;
 
 
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.concertidc.mcqtest.dto.QuestionsDto;
+import com.concertidc.mcqtest.dto.UsersDto;
 import com.concertidc.mcqtest.entity.AnswerKey;
 import com.concertidc.mcqtest.entity.AnswerSheet;
 import com.concertidc.mcqtest.entity.Questions;
@@ -34,6 +37,7 @@ public class McqServiceImpl implements McqService {
 	AnswerSheetRepository answerSheetRepository;
 	@Autowired
 	AnswerKeyRepository answerKeyRepository;
+	private int count;
 	
 	@Override
 	public String createUsers(Users users) {
@@ -119,8 +123,60 @@ public class McqServiceImpl implements McqService {
 		questionsDto.setOptionD(questions.getOptions().getOptionD());
 		return questionsDto;
 	}
-	
-	
-	
-	
+
+	public List<UsersDto> filterMarksAboveSeven() {
+		List<AnswerSheet> answerSheets = answerSheetRepository.findAll();
+		Long aId = (long) 1;
+		AnswerKey answerKey = answerKeyRepository.findById(aId).orElse(null);
+		List<UsersDto> userList = new ArrayList<>();
+		for (AnswerSheet answerSheet : answerSheets) {
+			count = 0;
+			if(answerSheet.getAnswerOne().equals(answerKey.getAnswerKeyOne())){count++;}
+			if(answerSheet.getAnswerTwo().equals(answerKey.getAnswerKeyTwo())){count++;}
+			if(answerSheet.getAnswerThree().equals(answerKey.getAnswerKeyThree())){count++;}
+			if(answerSheet.getAnswerFour().equals(answerKey.getAnswerKeyFour())){count++;}
+			if(answerSheet.getAnswerFive().equals(answerKey.getAnswerKeyFive())){count++;}
+			if(answerSheet.getAnswerSix().equals(answerKey.getAnswerKeySix())){count++;}
+			if(answerSheet.getAnswerSeven().equals(answerKey.getAnswerKeySeven())){count++;}
+			if(answerSheet.getAnswerEight().equals(answerKey.getAnswerKeyEight())){count++;}
+			if(answerSheet.getAnswerNine().equals(answerKey.getAnswerKeyNine())){count++;}
+			if(answerSheet.getAnswerTen().equals(answerKey.getAnswerKeyTen())){count++;}
+			if(count >= 7)
+			{
+				UsersDto usersDto = new UsersDto();
+				usersDto.setUserId(answerSheet.getUsers().getUserId());
+				usersDto.setName(answerSheet.getUsers().getName());
+				userList.add(usersDto);
+			}
+		}
+		return userList;
+	}
+	@Override
+	public List<UsersDto> filterMarksBelowSeven() {
+		List<AnswerSheet> answerSheets = answerSheetRepository.findAll();
+		Long aId = (long) 1;
+		AnswerKey answerKey = answerKeyRepository.findById(aId).orElse(null);
+		List<UsersDto> userList = new ArrayList<>();
+		for (AnswerSheet answerSheet : answerSheets) {
+			count = 0;
+			if(answerSheet.getAnswerOne().equals(answerKey.getAnswerKeyOne())){count++;}
+			if(answerSheet.getAnswerTwo().equals(answerKey.getAnswerKeyTwo())){count++;}
+			if(answerSheet.getAnswerThree().equals(answerKey.getAnswerKeyThree())){count++;}
+			if(answerSheet.getAnswerFour().equals(answerKey.getAnswerKeyFour())){count++;}
+			if(answerSheet.getAnswerFive().equals(answerKey.getAnswerKeyFive())){count++;}
+			if(answerSheet.getAnswerSix().equals(answerKey.getAnswerKeySix())){count++;}
+			if(answerSheet.getAnswerSeven().equals(answerKey.getAnswerKeySeven())){count++;}
+			if(answerSheet.getAnswerEight().equals(answerKey.getAnswerKeyEight())){count++;}
+			if(answerSheet.getAnswerNine().equals(answerKey.getAnswerKeyNine())){count++;}
+			if(answerSheet.getAnswerTen().equals(answerKey.getAnswerKeyTen())){count++;}
+			if(count < 7)
+			{
+				UsersDto usersDto = new UsersDto();
+				usersDto.setUserId(answerSheet.getUsers().getUserId());
+				usersDto.setName(answerSheet.getUsers().getName());
+				userList.add(usersDto);
+			}
+		}
+		return userList;
+	}
 }

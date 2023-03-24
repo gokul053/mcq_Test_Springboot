@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concertidc.mcqtest.dto.QuestionsDto;
+import com.concertidc.mcqtest.dto.UsersDto;
 import com.concertidc.mcqtest.entity.AnswerKey;
 import com.concertidc.mcqtest.entity.Questions;
 import com.concertidc.mcqtest.entity.Users;
@@ -72,4 +73,17 @@ public class McqController {
 	{
 		return mcqService.createAnswerKey(answerkey);
 	}
+	
+	@GetMapping("/marksAboveSeven")
+	public List<UsersDto> filterMarksAboveSeven()
+	{
+		return mcqService.filterMarksAboveSeven();
+	}
+	
+	@GetMapping("/marksBelowSeven")
+	public List<UsersDto> filterMarksBelowSeven()
+	{
+		return mcqService.filterMarksBelowSeven();
+	}
 }
+

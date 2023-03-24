@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.concertidc.mcqtest.dto.QuestionsDto;
+import com.concertidc.mcqtest.dto.UsersDto;
 import com.concertidc.mcqtest.entity.AnswerKey;
 import com.concertidc.mcqtest.entity.Questions;
 import com.concertidc.mcqtest.entity.Users;
@@ -24,5 +25,9 @@ public interface McqService {
 
 	String displayResult(Long id);
 
-	List<QuestionsDto> showQuestions();	
+	List<QuestionsDto> showQuestions();
+
+	List<UsersDto> filterMarksAboveSeven();
+
+	List<UsersDto> filterMarksBelowSeven();	
 }
