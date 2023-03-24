@@ -42,7 +42,7 @@ public class McqController {
 	}
 	//Display the Result
 	@GetMapping("/displayResult/{userId}")
-	public String displayResult(@PathVariable("Id")Long id)
+	public String displayResult(@PathVariable("userId")Long id)
 	{
 		return mcqService.displayResult(id);
 	}
