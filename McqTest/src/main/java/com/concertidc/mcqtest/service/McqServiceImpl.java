@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.concertidc.mcqtest.dto.QuestionsDto;
 import com.concertidc.mcqtest.dto.UsersDto;
-import com.concertidc.mcqtest.entity.AnswerKey;
-import com.concertidc.mcqtest.entity.AnswerSheet;
-import com.concertidc.mcqtest.entity.Questions;
-import com.concertidc.mcqtest.entity.Users;
+import com.concertidc.mcqtest.model.AnswerKey;
+import com.concertidc.mcqtest.model.AnswerSheet;
+import com.concertidc.mcqtest.model.Questions;
+import com.concertidc.mcqtest.model.Users;
 import com.concertidc.mcqtest.repository.AnswerKeyRepository;
 import com.concertidc.mcqtest.repository.AnswerSheetRepository;
 import com.concertidc.mcqtest.repository.OptionsRepository;

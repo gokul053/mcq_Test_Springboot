@@ -1,4 +1,4 @@
-package com.concertidc.mcqtest.entity;
+package com.concertidc.mcqtest.model;
 
 
 

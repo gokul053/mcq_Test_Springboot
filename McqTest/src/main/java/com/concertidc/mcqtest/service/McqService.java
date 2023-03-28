@@ -5,9 +5,9 @@ import java.util.Map;
 
 import com.concertidc.mcqtest.dto.QuestionsDto;
 import com.concertidc.mcqtest.dto.UsersDto;
-import com.concertidc.mcqtest.entity.AnswerKey;
-import com.concertidc.mcqtest.entity.Questions;
-import com.concertidc.mcqtest.entity.Users;
+import com.concertidc.mcqtest.model.AnswerKey;
+import com.concertidc.mcqtest.model.Questions;
+import com.concertidc.mcqtest.model.Users;
 
 public interface McqService {
 
