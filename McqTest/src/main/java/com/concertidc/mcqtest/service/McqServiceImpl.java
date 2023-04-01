@@ -2,6 +2,7 @@ package com.concertidc.mcqtest.service;
 
 
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,9 @@ public class McqServiceImpl implements McqService {
 	}
 
 	@Override
-	public Users writeExam(Long id, Map<String, String> answerMap) throws EntityNotFoundException {
+	public Users writeExam(Principal p, Map<String, String> answerMap) throws EntityNotFoundException {
+		String username = p.getName();
+		Long id = usersRepository.getUserIdByUsername(username);
 		Users users = usersRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
 		AnswerSheet answerSheet = new AnswerSheet();
 		answerSheet.setAnswerOne(answerMap.get("answerOne"));
@@ -86,7 +89,9 @@ public class McqServiceImpl implements McqService {
 	}
 
 	@Override
-	public String displayResult(Long id) {
+	public String displayResult(Principal p) {
+		String username = p.getName();
+		Long id = usersRepository.getUserIdByUsername(username);
 		AnswerSheet answerSheet = answerSheetRepository.updateMarks(id);
 		Long aId = (long) 1;
 		AnswerKey answerKey = answerKeyRepository.findById(aId).orElse(null);

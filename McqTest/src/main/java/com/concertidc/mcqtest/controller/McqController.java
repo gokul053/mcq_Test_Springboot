@@ -1,11 +1,11 @@
 package com.concertidc.mcqtest.controller;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,19 +36,17 @@ public class McqController {
 		return mcqService.showQuestions();
 	}
 	//Attend the Exam
-	@PostMapping("/answers/{userId}")
-	public Users writeExam(@PathVariable("userId")Long id, @RequestBody Map<String, String> answerMap)
+	@PostMapping("/answers")
+	public Users writeExam(Principal p, @RequestBody Map<String, String> answerMap)
 	{
-		return mcqService.writeExam(id, answerMap);
+		return mcqService.writeExam(p, answerMap);
 	}
 	//Display the Result
-	@GetMapping("/displayResult/{userId}")
-	public String displayResult(@PathVariable("userId")Long id)
+	@GetMapping("/displayResult")
+	public String displayResult(Principal p)
 	{
-		return mcqService.displayResult(id);
+		return mcqService.displayResult(p);
 	}
-	
-	
 	//Display all Users and their Answers
 	@GetMapping("/displayAllUsers")
 	public List<Users> displayAllUsers()
@@ -73,7 +71,7 @@ public class McqController {
 	{
 		return mcqService.createAnswerKey(answerkey);
 	}
-	
+	//Mark Filters
 	@GetMapping("/marksAboveSeven")
 	public List<UsersDto> filterMarksAboveSeven()
 	{

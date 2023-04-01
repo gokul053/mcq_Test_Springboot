@@ -3,11 +3,16 @@ package com.concertidc.mcqtest.model;
 
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Max;
 @Entity
 public class Options {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Max(10)
 	private Long questionNumber;
 	private String optionA;
 	private String optionB;

@@ -1,5 +1,6 @@
 package com.concertidc.mcqtest.service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -19,11 +20,11 @@ public interface McqService {
 
 	List<Questions> displayAllQuestions();
 
-	Users writeExam(Long id, Map<String, String> answerMap);
+	Users writeExam(Principal p, Map<String, String> answerMap);
 
 	AnswerKey createAnswerKey(AnswerKey answerkey);
 
-	String displayResult(Long id);
+	String displayResult(Principal p);
 
 	List<QuestionsDto> showQuestions();
 

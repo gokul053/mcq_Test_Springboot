@@ -1,16 +1,16 @@
 package com.concertidc.mcqtest.model;
 
-import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -18,16 +18,16 @@ import jakarta.persistence.UniqueConstraint;
 @Entity
 @Table(name = "users",
 uniqueConstraints = {
-		@UniqueConstraint(columnNames = "userName"),
+		@UniqueConstraint(columnNames = "username"),
 		@UniqueConstraint(columnNames = "email")
 })
 public class Users {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) 
 	private Long userId;
-	private String userName;
+	private String username;
 	private String email;
-	private String passWord;
+	private String password;
 	private String name;
 	private String department;
 	private String address;
@@ -36,42 +36,47 @@ public class Users {
     private AnswerSheet answerSheet;
 	
 	
-	@ManyToMany(fetch = FetchType.LAZY)
-	  @JoinTable(name = "user_roles", 
-	             joinColumns = @JoinColumn(name = "user_id"),
-	             inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private Set<Role> roles = new HashSet<>();
+	@ElementCollection(fetch= FetchType.EAGER)
+	@CollectionTable(
+			name="roles",
+			joinColumns = @JoinColumn(name="user_id")
+			)
+	@Column(name="user_role")
+	private Set<String> roles;
 	
 	
-	public Set<Role> getRoles() {
+	
+
+	public Set<String> getRoles() {
 		return roles;
 	}
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(Set<String> roles) {
 		this.roles = roles;
 	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
 	public Long getUserId() {
 		return userId;
 	}
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
-	public String getUserName() {
-		return userName;
-	}
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
 	public String getEmail() {
 		return email;
 	}
 	public void setEmail(String email) {
 		this.email = email;
-	}
-	public String getPassWord() {
-		return passWord;
-	}
-	public void setPassWord(String passWord) {
-		this.passWord = passWord;
 	}
 	public String getName() {
 		return name;
@@ -99,10 +104,4 @@ public class Users {
 	}
 	public Users(){
 	}
-	public Users(String userName, String email, String passWord) {
-		this.userName = userName;
-		this.email = email;
-		this.passWord = passWord;
-	}
-	
 }
