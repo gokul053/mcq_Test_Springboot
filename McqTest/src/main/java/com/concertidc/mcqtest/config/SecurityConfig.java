@@ -24,47 +24,44 @@ public class SecurityConfig {
 
 	@Autowired
 	private UserDetailsService userDetailsService;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder bCryptEncoder;
-	
+
 	@Autowired
 	private UnAuthorizedUserAuthenticationEntryPoint authenticationEntryPoint;
-	
+
 	@Autowired
-	private SecurityFilter secFilter;
-	
+	private SecurityFilter securityFilter;
+
 	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+			throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
-	
+
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-		auth.userDetailsService(userDetailsService)
-		    .passwordEncoder(bCryptEncoder);
+		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptEncoder);
 	}
+
 	@Bean
 	protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
 		http
-			.csrf().disable()
-			.authorizeHttpRequests()
-			.requestMatchers("/user/loginUser").permitAll()
-			.requestMatchers("/user/saveUser","/createQuestions","/createAnswerKey","/marksAboveSeven","/marksBelowSeven").hasAuthority("Admin")
-			.requestMatchers("/displayAllQuestions").hasAuthority("User")
-			.anyRequest().authenticated()
+			.csrf().disable().authorizeHttpRequests()
+			.requestMatchers("/home/**").permitAll()
+			.requestMatchers("/admin/**").hasAuthority("Admin")
+			.requestMatchers("/user/**").hasAuthority("User")
 			.and()
-			.exceptionHandling()
-			.authenticationEntryPoint(authenticationEntryPoint)
+			.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
 			.and()
-			.sessionManagement()
-			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
-			.addFilterBefore(secFilter, UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
-			
 	}
-	
+
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
@@ -72,5 +69,5 @@ public class SecurityConfig {
 		authenticationProvider.setPasswordEncoder(bCryptEncoder);
 		return authenticationProvider;
 	}
-	
-}	
+
+}
