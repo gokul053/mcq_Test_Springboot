@@ -12,11 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concertidc.mcqtest.dto.UsersDto;
-import com.concertidc.mcqtest.model.AnswerKey;
 import com.concertidc.mcqtest.model.Department;
 import com.concertidc.mcqtest.model.Questions;
 import com.concertidc.mcqtest.model.Users;
-import com.concertidc.mcqtest.service.McqServiceImpl;
+import com.concertidc.mcqtest.service.McqService;
 import com.concertidc.mcqtest.service.UserDetailServiceImpl;
 
 import jakarta.validation.ConstraintViolationException;
@@ -26,7 +25,7 @@ import jakarta.validation.ConstraintViolationException;
 public class AdminController {
 
 	@Autowired
-	private McqServiceImpl mcqServiceImpl;
+	private McqService mcqServiceImpl;
 
 	@Autowired
 	public UserDetailServiceImpl userDetailServiceImpl;
@@ -46,11 +45,6 @@ public class AdminController {
 	@PostMapping("/create-questions")
 	public ResponseEntity<?> createQuestions(@RequestBody Questions questions) throws ConstraintViolationException {
 		return mcqServiceImpl.createQuestions(questions);
-	}
-
-	@PostMapping("/create-answerkey")
-	public AnswerKey createAnswerKey(@RequestBody AnswerKey answerkey) {
-		return mcqServiceImpl.createAnswerKey(answerkey);
 	}
 
 	@GetMapping("/marks-above-seven")

@@ -5,6 +5,7 @@ public class UsersDto {
 	private Long userId;
 	private String firstName;
 	private String lastName;
+	private int marks;
 
 	public Long getUserId() {
 		return userId;
@@ -29,5 +30,15 @@ public class UsersDto {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+
+	public int getMarks() {
+		return marks;
+	}
+
+	public void setMarks(int marks) {
+		this.marks = marks;
+	}
+	
+	
 
 }

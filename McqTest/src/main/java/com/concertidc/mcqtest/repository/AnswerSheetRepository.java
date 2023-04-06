@@ -12,4 +12,5 @@ import com.concertidc.mcqtest.model.Users;
 public interface AnswerSheetRepository extends JpaRepository<AnswerSheet, Long> {
 
 	List<AnswerSheet> findByUsers(Users users);
+	
 }

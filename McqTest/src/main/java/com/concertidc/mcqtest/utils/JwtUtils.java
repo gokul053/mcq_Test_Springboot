@@ -18,10 +18,10 @@ public class JwtUtils {
 	@Value("${app.secret.key}")
 	private String secretKey;
 	
-	@Value("${app.accesstoken.inminutes}")
+	@Value("${app.accesstoken.expiryinminutes}")
 	private int accessTokenExpirationInMinutes;
 	
-	@Value("${app.refreshtoken.inhours}")
+	@Value("${app.refreshtoken.expiryinhours}")
 	private int refreshTokenExpirationInHours;
 
 	// code to generate Token
@@ -51,9 +51,16 @@ public class JwtUtils {
 	}
 
 	// code to get Claims
-	public Claims getClaims(String token) {
-		return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes())).parseClaimsJws(token)
-				.getBody();
+	public Claims getClaims(String rawtoken) {
+
+		if (rawtoken.startsWith("Bearer ")) {
+			String token = rawtoken.substring(7, rawtoken.length());
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes())).parseClaimsJws(token)
+					.getBody();
+		} else {
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes()))
+					.parseClaimsJws(rawtoken).getBody();
+		}
 	}
 
 	// code to check if token is valid
@@ -62,9 +69,15 @@ public class JwtUtils {
 	}
 
 	// check token type
-	public String getTokenType(String token) {
-		return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes())).parseClaimsJws(token)
-				.getHeader().getType();
+	public String getTokenType(String rawtoken) {
+		if (rawtoken.startsWith("Bearer ")) {
+			String token = rawtoken.substring(7, rawtoken.length());
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes())).parseClaimsJws(token)
+					.getHeader().getType();
+		} else {
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes()))
+					.parseClaimsJws(rawtoken).getHeader().getType();
+		}
 	}
 
 	// code to check if token is valid as per username

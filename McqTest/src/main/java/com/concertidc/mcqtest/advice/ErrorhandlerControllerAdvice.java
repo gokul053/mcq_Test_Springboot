@@ -34,11 +34,11 @@ public class ErrorhandlerControllerAdvice {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
 	}
 
-	@ExceptionHandler(NullPointerException.class)
-	public ResponseEntity<?> nullPointerException() {
-		String message = "Field Can't be Null";
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
-	}
+//	@ExceptionHandler(NullPointerException.class)
+//	public ResponseEntity<?> nullPointerException() {
+//		String message = "Field Can't be Null";
+//		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+//	}
 
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ResponseEntity<?> constraintNullHandler() {

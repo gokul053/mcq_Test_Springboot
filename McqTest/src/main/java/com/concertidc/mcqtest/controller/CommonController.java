@@ -1,6 +1,5 @@
 package com.concertidc.mcqtest.controller;
 
-import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +16,11 @@ import com.concertidc.mcqtest.dto.LoginRequest;
 import com.concertidc.mcqtest.dto.LoginResponse;
 import com.concertidc.mcqtest.service.UserDetailServiceImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/home")
-public class HomeController {
+public class CommonController {
 
 	@Autowired
 	private UserDetailServiceImpl userDetailServiceImpl;
@@ -38,8 +39,8 @@ public class HomeController {
 	}
 
 	@PostMapping("/refresh-token")
-	public ResponseEntity<?> refreshToken(Principal principal) {
-		RefreshTokenResponse result = userDetailServiceImpl.generateNewAccessToken(principal);
+	public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+		RefreshTokenResponse result = userDetailServiceImpl.generateNewAccessToken(request);
 		return ResponseEntity.ok(result);
 	}
 }

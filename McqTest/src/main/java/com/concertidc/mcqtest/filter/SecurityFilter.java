@@ -31,6 +31,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private JwtUtils jwtUtils;
+	
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -39,7 +40,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		try {
 			String requestURL = request.getRequestURL().toString();
-			if (requestURL.contains("refreshtoken")) {
+			if (requestURL.contains("refresh-token")) {
 				String isRefreshToken = request.getHeader("isRefreshToken");
 				String username = jwtUtils.getSubject(isRefreshToken);
 				boolean isValidType = jwtUtils.getTokenType(isRefreshToken).contains("RefreshToken");
@@ -74,7 +75,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 				}
 			}
 			filterChain.doFilter(request, response);
-		} catch (ExpiredJwtException | AuthenticationException | SignatureException | MalformedJwtException exception) {
+		} catch (AuthenticationException | SignatureException | MalformedJwtException exception) {
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
 			final Map<String, Object> body = new HashMap<>();
@@ -84,7 +85,16 @@ public class SecurityFilter extends OncePerRequestFilter {
 			body.put("path", request.getServletPath());
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(response.getOutputStream(), body);
+		} catch (ExpiredJwtException jwtException) {
+			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+			response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+			final Map<String, Object> body = new HashMap<>();
+			body.put("status", HttpServletResponse.SC_NOT_ACCEPTABLE);
+			body.put("error", "Unauthorized");
+			body.put("message", "Access Token Expired");
+			body.put("path", request.getServletPath());
+			final ObjectMapper mapper = new ObjectMapper();
+			mapper.writeValue(response.getOutputStream(), body);
 		}
 	}
-
 }

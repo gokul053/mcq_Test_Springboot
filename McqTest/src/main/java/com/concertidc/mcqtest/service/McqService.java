@@ -1,9 +1,7 @@
 package com.concertidc.mcqtest.service;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,11 +24,13 @@ import com.concertidc.mcqtest.repository.DepartmentRepository;
 import com.concertidc.mcqtest.repository.OptionsRepository;
 import com.concertidc.mcqtest.repository.QuestionsRepository;
 import com.concertidc.mcqtest.repository.UsersRepository;
+import com.concertidc.mcqtest.utils.JwtUtils;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
-public class McqServiceImpl {
+public class McqService {
 
 	@Autowired
 	UsersRepository usersRepository;
@@ -49,14 +49,13 @@ public class McqServiceImpl {
 
 	@Autowired
 	DepartmentRepository departmentRepository;
+	
+	@Autowired
+	JwtUtils jwtUtils;
 
 	public String createUsers(Users users) {
 		usersRepository.save(users);
 		return "Account Created, User Id = " + users.getUserId();
-	}
-
-	public List<Users> displayAllUsers() {
-		return usersRepository.findAll();
 	}
 
 	public ResponseEntity<?> createQuestions(Questions questions) {
@@ -67,37 +66,32 @@ public class McqServiceImpl {
 		return ResponseEntity.ok(new ResponseMessage("Questions Saved"));
 	}
 
-	public List<Questions> displayAllQuestions() {
-		return questionsRepository.findAll();
-	}
-
-	public ResponseEntity<?> writeExam(Principal principal, Long questionNumber, Map<String, String> answerMap) {
-		String username = principal.getName();
+	public ResponseEntity<?> writeExam(HttpServletRequest request, Long questionNumber, AnswerSheet answerSheet) {
+		String username = jwtUtils.getSubject(request.getHeader("Authorization"));
 		Users users = usersRepository.findByUsername(username)
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		Questions questions = questionsRepository.findById(questionNumber)
 				.orElseThrow(() -> new EntityNotFoundException("Question not found"));
 		List<AnswerSheet> answerSheetList = answerSheetRepository.findByUsers(users);
-		for (AnswerSheet answerSheet : answerSheetList) {
-			if (answerSheet.getQuestions().getQuestionId().equals(questionNumber)) {
+		if (answerSheet.getAnswer() == null || answerSheet.getAnswer().isBlank()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(new ResponseMessage("Provide Answer in correct Format"));
+		}
+		for (AnswerSheet answerSheets : answerSheetList) {
+			if (answerSheets.getQuestions().getQuestionId().equals(questionNumber)) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 						.body(new ResponseMessage("Answer Already Saved For this Question"));
 			}
 		}
-		AnswerSheet answerSheet = new AnswerSheet();
 		answerSheet.setUsers(users);
 		answerSheet.setQuestions(questions);
-		answerSheet.setAnswer(answerMap.get("answer"));
+		answerSheet.setAnswer(answerSheet.getAnswer());
 		answerSheetRepository.save(answerSheet);
-		return ResponseEntity.ok("Answer Saved to the Answersheet");
+		return ResponseEntity.ok(new ResponseMessage("Answer Saved to the Answersheet"));
 	}
 
-	public AnswerKey createAnswerKey(AnswerKey answerkey) {
-		return answerKeyRepository.save(answerkey);
-	}
-
-	public String displayResult(Principal principal) throws Exception {
-		String username = principal.getName();
+	public String displayResult(HttpServletRequest request) throws Exception {
+		String username = jwtUtils.getSubject(request.getHeader("Authorization"));
 		Users users = usersRepository.findByUsername(username)
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		List<AnswerSheet> answerSheets = answerSheetRepository.findByUsers(users);
@@ -112,8 +106,11 @@ public class McqServiceImpl {
 			answerKey.add(question.getAnswerKey().getAnswerKey());
 		}
 		for (int i = 0; i < 10; i++) {
+			if(answer.get(i) != null && answerKey.get(i) != null)
+			{
 			if (answer.get(i).equals(answerKey.get(i))) {
 				count++;
+			}
 			}
 		}
 		if (count < 5)
@@ -141,12 +138,12 @@ public class McqServiceImpl {
 		return questionsDto;
 	}
 
-	public List<UsersDto> filterMarksAboveSeven() {
-		int count = 0;
+	public List<UsersDto> calculateMarks() {
 		List<Users> users = usersRepository.findAll();
 		List<UsersDto> userList = new ArrayList<>();
 		for (Users user : users) {
 			if (user.getRoles().contains("User")) {
+				int count = 0;
 				List<AnswerSheet> answerSheets = answerSheetRepository.findByUsers(user);
 				List<Questions> questions = questionsRepository.findAll();
 				List<String> answer = new ArrayList<>();
@@ -157,55 +154,42 @@ public class McqServiceImpl {
 				for (Questions question : questions) {
 					answerKey.add(question.getAnswerKey().getAnswerKey());
 				}
-				for (int i = 0; i < 10; i++) {
+				for (int i = 0; i < answer.size(); i++) {
 					if (answer.get(i).equals(answerKey.get(i))) {
 						count++;
-						System.out.println(answer.get(i));
 					}
 				}
-				if (count >= 7) {
-					UsersDto usersDto = new UsersDto();
-					usersDto.setUserId(user.getUserId());
-					usersDto.setFirstName(user.getFirstName());
-					usersDto.setLastName(user.getLastName());
-					userList.add(usersDto);
-				}
+				UsersDto usersDto = new UsersDto();
+				usersDto.setUserId(user.getUserId());
+				usersDto.setFirstName(user.getFirstName());
+				usersDto.setLastName(user.getLastName());
+				usersDto.setMarks(count);
+				userList.add(usersDto);
 			}
 		}
 		return userList;
 	}
 
-	public List<UsersDto> filterMarksBelowSeven() {
-		int count = 0;
-		List<Users> users = usersRepository.findAll();
-		List<UsersDto> userList = new ArrayList<>();
-		for (Users user : users) {
-			if (user.getRoles().contains("User")) {
-				List<AnswerSheet> answerSheets = answerSheetRepository.findByUsers(user);
-				List<Questions> questions = questionsRepository.findAll();
-				List<String> answer = new ArrayList<>();
-				List<String> answerKey = new ArrayList<>();
-				for (AnswerSheet answerSheet : answerSheets) {
-					answer.add(answerSheet.getAnswer());
-				}
-				for (Questions question : questions) {
-					answerKey.add(question.getAnswerKey().getAnswerKey());
-				}
-				for (int i = 0; i < 10; i++) {
-					if (answer.get(i).equals(answerKey.get(i))) {
-						count++;
-					}
-				}
-				if (count < 7) {
-					UsersDto usersDto = new UsersDto();
-					usersDto.setUserId(user.getUserId());
-					usersDto.setFirstName(user.getFirstName());
-					usersDto.setLastName(user.getLastName());
-					userList.add(usersDto);
-				}
+	public List<UsersDto> filterMarksAboveSeven() {
+		List<UsersDto> userList = calculateMarks();
+		List<UsersDto> filteredUserList = new ArrayList<>();
+		for (UsersDto usersDto : userList) {
+			if (usersDto.getMarks() >= 7) {
+				filteredUserList.add(usersDto);
 			}
 		}
-		return userList;
+		return filteredUserList;
+	}
+
+	public List<UsersDto> filterMarksBelowSeven() {
+		List<UsersDto> userList = calculateMarks();
+		List<UsersDto> filteredUserList = new ArrayList<>();
+		for (UsersDto usersDto : userList) {
+			if (usersDto.getMarks() < 7) {
+				filteredUserList.add(usersDto);
+			}
+		}
+		return filteredUserList;
 	}
 
 	public String updateDepartmentList(Department department) {

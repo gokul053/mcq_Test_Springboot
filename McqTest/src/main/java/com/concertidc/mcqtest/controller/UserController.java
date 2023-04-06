@@ -1,8 +1,6 @@
 package com.concertidc.mcqtest.controller;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +12,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concertidc.mcqtest.dto.QuestionsDto;
-import com.concertidc.mcqtest.service.McqServiceImpl;
+import com.concertidc.mcqtest.model.AnswerSheet;
+import com.concertidc.mcqtest.service.McqService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
 	@Autowired
-	McqServiceImpl mcqServiceImpl;
+	McqService mcqServiceImpl;
 
 	@GetMapping("/display-questions")
 	public List<QuestionsDto> displayQuestions() {
@@ -29,14 +30,14 @@ public class UserController {
 	}
 
 	@PostMapping("/write-exam/{question-number}")
-	public ResponseEntity<?> writeExam(Principal principal, @PathVariable("question-number") Long questionNumber,
-			@RequestBody Map<String, String> answerMap) {
-		return mcqServiceImpl.writeExam(principal, questionNumber, answerMap);
+	public ResponseEntity<?> writeExam(HttpServletRequest request, @PathVariable("question-number") Long questionNumber,
+			@RequestBody AnswerSheet answerSheet) {
+		return mcqServiceImpl.writeExam(request, questionNumber, answerSheet);
 	}
 
 	@GetMapping("/display-result")
-	public String displayResult(Principal principal) throws Exception {
-		return mcqServiceImpl.displayResult(principal);
+	public String displayResult(HttpServletRequest request) throws Exception {
+		return mcqServiceImpl.displayResult(request);
 	}
 
 }

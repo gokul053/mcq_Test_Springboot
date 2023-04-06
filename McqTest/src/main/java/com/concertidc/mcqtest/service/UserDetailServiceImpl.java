@@ -1,6 +1,5 @@
 package com.concertidc.mcqtest.service;
 
-import java.security.Principal;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +25,7 @@ import com.concertidc.mcqtest.repository.UsersRepository;
 import com.concertidc.mcqtest.utils.JwtUtils;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
@@ -71,7 +71,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		}
 		user.setPassword(bCryptEncoder.encode(user.getPassword()));
 		Long id = usersRepository.save(user).getUserId();
-		return ResponseEntity.ok("User Saved with the ID : " + id + " in the Database");
+		return ResponseEntity.ok(new ResponseMessage("User Saved with the ID : " + id + " in the Database"));
 	}
 
 	public Optional<Users> findByUsername(String username) {
@@ -96,9 +96,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		return userResponse;
 	}
 
-	public RefreshTokenResponse generateNewAccessToken(Principal principal) {
+	public RefreshTokenResponse generateNewAccessToken(HttpServletRequest request) {
 		RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse();
-		String username = principal.getName();
+		String refreshToken = request.getHeader("isRefreshToken");
+		String username = jwtUtils.getSubject(refreshToken);
 		String token = jwtUtils.generateRefreshToken(username);
 		refreshTokenResponse.setUsername(username);
 		refreshTokenResponse.setNewAccessToken(token);
@@ -107,14 +108,12 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
 	public void validateCredentials(String username, String password)
 			throws AuthenticationException, NullPointerException {
-
 		if (username.isBlank()) {
 			throw new NullPointerException();
 		}
 		if (findByUsername(username).isEmpty()) {
 			throw new UsernameNotFoundException("Username Not Found");
 		}
-
 	}
 
 }

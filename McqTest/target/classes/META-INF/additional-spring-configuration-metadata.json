@@ -5,13 +5,13 @@
     "description": "A description for 'app.secret.key'"
   },
   {
-    "name": "app.refreshtoken.inhours",
+    "name": "app.refreshtoken.expiryinhours",
     "type": "java.lang.String",
-    "description": "A description for 'app.refreshtoken.inhours'"
+    "description": "A description for 'app.refreshtoken.expiryinhours'"
   },
   {
-    "name": "app.accesstoken.inminutes",
+    "name": "app.accesstoken.expiryinminutes",
     "type": "java.lang.String",
-    "description": "A description for 'app.accesstoken.inminutes'"
+    "description": "A description for 'app.accesstoken.expiryinminutes'"
   }
 ]}
