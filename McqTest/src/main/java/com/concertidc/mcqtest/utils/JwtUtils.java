@@ -26,7 +26,7 @@ public class JwtUtils {
 
 	// code to generate Token
 	public String generateToken(String subject) {
-		String tokenId = String.valueOf(new Random().nextInt(10000));
+		final String tokenId = String.valueOf(new Random().nextInt(10000));
 		return Jwts.builder()
 				.setId(tokenId)
 				.setHeaderParam("typ", "AccessToken")
@@ -40,7 +40,7 @@ public class JwtUtils {
 
 	// code to generate Refresh Token
 	public String generateRefreshToken(String subject) {
-		String tokenId = String.valueOf(new Random().nextInt(10000));
+		final String tokenId = String.valueOf(new Random().nextInt(10000));
 		return Jwts.builder().setId(tokenId).setHeaderParam("typ", "RefreshToken")
 				.setSubject(subject)
 				.setIssuer("mcqtest.com")
@@ -54,7 +54,7 @@ public class JwtUtils {
 	public Claims getClaims(String rawtoken) {
 
 		if (rawtoken.startsWith("Bearer ")) {
-			String token = rawtoken.substring(7, rawtoken.length());
+			final String token = rawtoken.substring(7, rawtoken.length());
 			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes())).parseClaimsJws(token)
 					.getBody();
 		} else {
@@ -71,7 +71,7 @@ public class JwtUtils {
 	// check token type
 	public String getTokenType(String rawtoken) {
 		if (rawtoken.startsWith("Bearer ")) {
-			String token = rawtoken.substring(7, rawtoken.length());
+			final String token = rawtoken.substring(7, rawtoken.length());
 			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes())).parseClaimsJws(token)
 					.getHeader().getType();
 		} else {
@@ -82,7 +82,7 @@ public class JwtUtils {
 
 	// code to check if token is valid as per username
 	public boolean isValidToken(String token, String username) {
-		String tokenUserName = getSubject(token);
+		final String tokenUserName = getSubject(token);
 		return (username.equals(tokenUserName) && !isTokenExpired(token));
 	}
 

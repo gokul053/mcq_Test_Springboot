@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.concertidc.mcqtest.dto.UsersDto;
+import com.concertidc.mcqtest.dto.QuestionsDto;
 import com.concertidc.mcqtest.model.Department;
 import com.concertidc.mcqtest.model.Questions;
 import com.concertidc.mcqtest.model.Users;
@@ -25,36 +25,37 @@ import jakarta.validation.ConstraintViolationException;
 public class AdminController {
 
 	@Autowired
-	private McqService mcqServiceImpl;
+	private McqService mcqService;
 
 	@Autowired
 	public UserDetailServiceImpl userDetailServiceImpl;
 
 	@PostMapping("/update-department-list")
 	public ResponseEntity<?> updateDepartmentList(@RequestBody Department department) {
-		String code = mcqServiceImpl.updateDepartmentList(department);
-		String message = "Department with code " + code + " saved successfully";
+		final String code = this.mcqService.updateDepartmentList(department);
+		final String message = "Department with code " + code + " saved successfully";
 		return ResponseEntity.ok(message);
 	}
 
 	@PostMapping("/save-user")
 	public ResponseEntity<?> saveUser(@RequestBody Users user) throws SQLException {
-		return userDetailServiceImpl.saveUser(user);
+		return this.userDetailServiceImpl.saveUser(user);
 	}
 
 	@PostMapping("/create-questions")
 	public ResponseEntity<?> createQuestions(@RequestBody Questions questions) throws ConstraintViolationException {
-		return mcqServiceImpl.createQuestions(questions);
+		return this.mcqService.createQuestions(questions);
 	}
 
-	@GetMapping("/marks-above-seven")
-	public List<UsersDto> filterMarksAboveSeven() {
-		return mcqServiceImpl.filterMarksAboveSeven();
+	@GetMapping("/display-questions")
+	public List<QuestionsDto> displayQuestions() {
+		return this.mcqService.displayQuestions();
 	}
-
-	@GetMapping("/marks-below-seven")
-	public List<UsersDto> filterMarksBelowSeven() {
-		return mcqServiceImpl.filterMarksBelowSeven();
+	
+	@GetMapping("/all-user-marks")
+	public ResponseEntity<?> calculateMarks()
+	{
+		return ResponseEntity.ok(mcqService.calculateMarks());
 	}
 
 }

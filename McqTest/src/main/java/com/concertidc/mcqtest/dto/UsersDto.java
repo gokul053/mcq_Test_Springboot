@@ -5,7 +5,8 @@ public class UsersDto {
 	private Long userId;
 	private String firstName;
 	private String lastName;
-	private int marks;
+	private int totalMarks;
+	private int obtainedMarks;
 
 	public Long getUserId() {
 		return userId;
@@ -31,14 +32,20 @@ public class UsersDto {
 		this.lastName = lastName;
 	}
 
-	public int getMarks() {
-		return marks;
+	public int getTotalMarks() {
+		return totalMarks;
 	}
 
-	public void setMarks(int marks) {
-		this.marks = marks;
+	public void setTotalMarks(int totalMarks) {
+		this.totalMarks = totalMarks;
 	}
-	
-	
+
+	public int getObtainedMarks() {
+		return obtainedMarks;
+	}
+
+	public void setObtainedMarks(int obtainedMarks) {
+		this.obtainedMarks = obtainedMarks;
+	}
 
 }

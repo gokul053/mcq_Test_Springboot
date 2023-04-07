@@ -22,22 +22,22 @@ import jakarta.servlet.http.HttpServletRequest;
 public class UserController {
 
 	@Autowired
-	McqService mcqServiceImpl;
+	McqService mcqService;
 
 	@GetMapping("/display-questions")
 	public List<QuestionsDto> displayQuestions() {
-		return mcqServiceImpl.displayQuestions();
+		return mcqService.displayQuestions();
 	}
 
 	@PostMapping("/write-exam/{question-number}")
 	public ResponseEntity<?> writeExam(HttpServletRequest request, @PathVariable("question-number") Long questionNumber,
 			@RequestBody AnswerSheet answerSheet) {
-		return mcqServiceImpl.writeExam(request, questionNumber, answerSheet);
+		return mcqService.writeExam(request, questionNumber, answerSheet);
 	}
 
 	@GetMapping("/display-result")
 	public String displayResult(HttpServletRequest request) throws Exception {
-		return mcqServiceImpl.displayResult(request);
+		return mcqService.displayResult(request);
 	}
 
 }

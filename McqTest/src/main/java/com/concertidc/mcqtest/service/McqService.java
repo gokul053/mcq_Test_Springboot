@@ -8,10 +8,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.concertidc.mcqtest.dto.ResponseMessage;
+import com.concertidc.mcqtest.advice.QuestionNotFoundException;
+import com.concertidc.mcqtest.dto.MarksFilter;
 import com.concertidc.mcqtest.dto.QuestionsDto;
+import com.concertidc.mcqtest.dto.ResponseMessage;
 import com.concertidc.mcqtest.dto.UsersDto;
 import com.concertidc.mcqtest.model.AnswerKey;
 import com.concertidc.mcqtest.model.AnswerSheet;
@@ -49,12 +52,12 @@ public class McqService {
 
 	@Autowired
 	DepartmentRepository departmentRepository;
-	
+
 	@Autowired
 	JwtUtils jwtUtils;
 
 	public String createUsers(Users users) {
-		usersRepository.save(users);
+		this.usersRepository.save(users);
 		return "Account Created, User Id = " + users.getUserId();
 	}
 
@@ -62,17 +65,17 @@ public class McqService {
 		if (questions.getQuestionId() > 10) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("Max Question Limit 10"));
 		}
-		questionsRepository.save(questions);
+		this.questionsRepository.save(questions);
 		return ResponseEntity.ok(new ResponseMessage("Questions Saved"));
 	}
 
 	public ResponseEntity<?> writeExam(HttpServletRequest request, Long questionNumber, AnswerSheet answerSheet) {
-		String username = jwtUtils.getSubject(request.getHeader("Authorization"));
-		Users users = usersRepository.findByUsername(username)
-				.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		Questions questions = questionsRepository.findById(questionNumber)
-				.orElseThrow(() -> new EntityNotFoundException("Question not found"));
-		List<AnswerSheet> answerSheetList = answerSheetRepository.findByUsers(users);
+		final String username = this.jwtUtils.getSubject(request.getHeader("Authorization"));
+		final Users users = this.usersRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+		final Questions questions = this.questionsRepository.findById(questionNumber)
+				.orElseThrow(() -> new QuestionNotFoundException());
+		final List<AnswerSheet> answerSheetList = answerSheetRepository.findByUsers(users);
 		if (answerSheet.getAnswer() == null || answerSheet.getAnswer().isBlank()) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body(new ResponseMessage("Provide Answer in correct Format"));
@@ -86,16 +89,16 @@ public class McqService {
 		answerSheet.setUsers(users);
 		answerSheet.setQuestions(questions);
 		answerSheet.setAnswer(answerSheet.getAnswer());
-		answerSheetRepository.save(answerSheet);
+		this.answerSheetRepository.save(answerSheet);
 		return ResponseEntity.ok(new ResponseMessage("Answer Saved to the Answersheet"));
 	}
 
 	public String displayResult(HttpServletRequest request) throws Exception {
-		String username = jwtUtils.getSubject(request.getHeader("Authorization"));
-		Users users = usersRepository.findByUsername(username)
+		final String username = this.jwtUtils.getSubject(request.getHeader("Authorization"));
+		final Users users = this.usersRepository.findByUsername(username)
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		List<AnswerSheet> answerSheets = answerSheetRepository.findByUsers(users);
-		List<Questions> questions = questionsRepository.findAll();
+		final List<AnswerSheet> answerSheets = answerSheetRepository.findByUsers(users);
+		final List<Questions> questions = questionsRepository.findAll();
 		List<String> answer = new ArrayList<>();
 		List<String> answerKey = new ArrayList<>();
 		int count = 0;
@@ -105,12 +108,11 @@ public class McqService {
 		for (Questions question : questions) {
 			answerKey.add(question.getAnswerKey().getAnswerKey());
 		}
-		for (int i = 0; i < 10; i++) {
-			if(answer.get(i) != null && answerKey.get(i) != null)
-			{
-			if (answer.get(i).equals(answerKey.get(i))) {
-				count++;
-			}
+		for (int i = 0; i < answer.size(); i++) {
+			if (answer.get(i) != null && answerKey.get(i) != null) {
+				if (answer.get(i).equals(answerKey.get(i))) {
+					count++;
+				}
 			}
 		}
 		if (count < 5)
@@ -120,11 +122,11 @@ public class McqService {
 	}
 
 	public Optional<AnswerKey> getAnswerKey(Long id) {
-		return answerKeyRepository.findById(id);
+		return this.answerKeyRepository.findById(id);
 	}
 
 	public List<QuestionsDto> displayQuestions() {
-		return questionsRepository.findAll().stream().map(this::convertingQuestionsDto).collect(Collectors.toList());
+		return this.questionsRepository.findAll().stream().map(this::convertingQuestionsDto).collect(Collectors.toList());
 	}
 
 	private QuestionsDto convertingQuestionsDto(Questions questions) {
@@ -138,21 +140,25 @@ public class McqService {
 		return questionsDto;
 	}
 
-	public List<UsersDto> calculateMarks() {
-		List<Users> users = usersRepository.findAll();
-		List<UsersDto> userList = new ArrayList<>();
+	public List<MarksFilter> calculateMarks() {
+		final List<Users> users = usersRepository.findAll();
+		final List<UsersDto> passUserList = new ArrayList<>();
+		final List<UsersDto> failUserList = new ArrayList<>();
+		final List<MarksFilter> marksList = new ArrayList<>();
 		for (Users user : users) {
 			if (user.getRoles().contains("User")) {
 				int count = 0;
-				List<AnswerSheet> answerSheets = answerSheetRepository.findByUsers(user);
-				List<Questions> questions = questionsRepository.findAll();
-				List<String> answer = new ArrayList<>();
-				List<String> answerKey = new ArrayList<>();
+				int totalMarks = 0;
+				final List<AnswerSheet> answerSheets = this.answerSheetRepository.findByUsers(user);
+				final List<Questions> questions = this.questionsRepository.findAll();
+				final List<String> answer = new ArrayList<>();
+				final List<String> answerKey = new ArrayList<>();
 				for (AnswerSheet answerSheet : answerSheets) {
 					answer.add(answerSheet.getAnswer());
 				}
 				for (Questions question : questions) {
 					answerKey.add(question.getAnswerKey().getAnswerKey());
+					totalMarks++;
 				}
 				for (int i = 0; i < answer.size(); i++) {
 					if (answer.get(i).equals(answerKey.get(i))) {
@@ -163,38 +169,25 @@ public class McqService {
 				usersDto.setUserId(user.getUserId());
 				usersDto.setFirstName(user.getFirstName());
 				usersDto.setLastName(user.getLastName());
-				usersDto.setMarks(count);
-				userList.add(usersDto);
+				usersDto.setTotalMarks(totalMarks);
+				usersDto.setObtainedMarks(count);
+				if (count > 5) {
+					passUserList.add(usersDto);
+				} else {
+					failUserList.add(usersDto);
+				}
 			}
 		}
-		return userList;
+		MarksFilter marksFilter = new MarksFilter();
+		marksFilter.setPassedCandidates(passUserList);
+		marksFilter.setFailedCandidates(failUserList);
+		marksList.add(marksFilter);
+		return marksList;
 	}
-
-	public List<UsersDto> filterMarksAboveSeven() {
-		List<UsersDto> userList = calculateMarks();
-		List<UsersDto> filteredUserList = new ArrayList<>();
-		for (UsersDto usersDto : userList) {
-			if (usersDto.getMarks() >= 7) {
-				filteredUserList.add(usersDto);
-			}
-		}
-		return filteredUserList;
-	}
-
-	public List<UsersDto> filterMarksBelowSeven() {
-		List<UsersDto> userList = calculateMarks();
-		List<UsersDto> filteredUserList = new ArrayList<>();
-		for (UsersDto usersDto : userList) {
-			if (usersDto.getMarks() < 7) {
-				filteredUserList.add(usersDto);
-			}
-		}
-		return filteredUserList;
-	}
-
+	
 	public String updateDepartmentList(Department department) {
-		String code = departmentRepository.save(department).getDepartmentCode();
+		final String code = this.departmentRepository.save(department).getDepartmentCode();
 		return code;
 	}
-
+	
 }
