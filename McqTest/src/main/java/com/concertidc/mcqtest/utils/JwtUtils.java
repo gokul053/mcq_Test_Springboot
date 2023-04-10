@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.concertidc.mcqtest.config.AuthConstantStore;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -23,42 +25,43 @@ public class JwtUtils {
 	
 	@Value("${app.refreshtoken.expiryinhours}")
 	private int refreshTokenExpirationInHours;
+	
 
 	// code to generate Token
 	public String generateToken(String subject) {
-		final String tokenId = String.valueOf(new Random().nextInt(10000));
+		final String tokenId = String.valueOf(new Random().nextInt(AuthConstantStore.TOKEN_ID));
 		return Jwts.builder()
 				.setId(tokenId)
-				.setHeaderParam("typ", "AccessToken")
+				.setHeaderParam("typ", AuthConstantStore.TOKEN_TYPE_A)
 				.setSubject(subject)
-				.setIssuer("mcqtest.com")
-				.setAudience("students")
+				.setIssuer(AuthConstantStore.TOKEN_ISSUER)
+				.setAudience(AuthConstantStore.TOKEN_AUDIENCE)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(accessTokenExpirationInMinutes)))
-				.signWith(SignatureAlgorithm.HS512, Base64.getEncoder().encode(secretKey.getBytes())).compact();
+				.setExpiration(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(this.accessTokenExpirationInMinutes)))
+				.signWith(SignatureAlgorithm.HS512, Base64.getEncoder().encode(this.secretKey.getBytes())).compact();
 	}
 
 	// code to generate Refresh Token
 	public String generateRefreshToken(String subject) {
-		final String tokenId = String.valueOf(new Random().nextInt(10000));
-		return Jwts.builder().setId(tokenId).setHeaderParam("typ", "RefreshToken")
+		final String tokenId = String.valueOf(new Random().nextInt(AuthConstantStore.TOKEN_ID));
+		return Jwts.builder().setId(tokenId).setHeaderParam("typ", AuthConstantStore.TOKEN_TYPE_B)
 				.setSubject(subject)
-				.setIssuer("mcqtest.com")
-				.setAudience("students")
+				.setIssuer(AuthConstantStore.TOKEN_ISSUER)
+				.setAudience(AuthConstantStore.TOKEN_AUDIENCE)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(refreshTokenExpirationInHours)))
-				.signWith(SignatureAlgorithm.HS256, Base64.getEncoder().encode(secretKey.getBytes())).compact();
+				.setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(this.refreshTokenExpirationInHours)))
+				.signWith(SignatureAlgorithm.HS256, Base64.getEncoder().encode(this.secretKey.getBytes())).compact();
 	}
 
 	// code to get Claims
 	public Claims getClaims(String rawtoken) {
 
-		if (rawtoken.startsWith("Bearer ")) {
+		if (rawtoken.startsWith(AuthConstantStore.TOKEN_PREFIX)) {
 			final String token = rawtoken.substring(7, rawtoken.length());
-			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes())).parseClaimsJws(token)
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes())).parseClaimsJws(token)
 					.getBody();
 		} else {
-			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes()))
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes()))
 					.parseClaimsJws(rawtoken).getBody();
 		}
 	}
@@ -70,12 +73,12 @@ public class JwtUtils {
 
 	// check token type
 	public String getTokenType(String rawtoken) {
-		if (rawtoken.startsWith("Bearer ")) {
+		if (rawtoken.startsWith(AuthConstantStore.TOKEN_PREFIX)) {
 			final String token = rawtoken.substring(7, rawtoken.length());
-			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes())).parseClaimsJws(token)
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes())).parseClaimsJws(token)
 					.getHeader().getType();
 		} else {
-			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secretKey.getBytes()))
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes()))
 					.parseClaimsJws(rawtoken).getHeader().getType();
 		}
 	}

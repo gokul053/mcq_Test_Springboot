@@ -1,6 +1,5 @@
 package com.concertidc.mcqtest.controller;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concertidc.mcqtest.dto.RefreshTokenResponse;
+import com.concertidc.mcqtest.config.EndPointStore;
 import com.concertidc.mcqtest.dto.LoginRequest;
 import com.concertidc.mcqtest.dto.LoginResponse;
 import com.concertidc.mcqtest.service.UserDetailServiceImpl;
@@ -19,7 +19,7 @@ import com.concertidc.mcqtest.service.UserDetailServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/home")
+@RequestMapping(EndPointStore.COMMON_ENDPOINT)
 public class CommonController {
 
 	@Autowired
@@ -28,19 +28,19 @@ public class CommonController {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
-	@PostMapping("/login-user")
+	@PostMapping(EndPointStore.LOGIN_USER)
 	public ResponseEntity<?> login(@RequestBody LoginRequest request)
 			throws AuthenticationException, NullPointerException {
-		userDetailServiceImpl.validateCredentials(request.getUsername(), request.getPassword());
-		authenticationManager
+		this.userDetailServiceImpl.validateCredentials(request.getUsername(), request.getPassword());
+		this.authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-		LoginResponse loginResponse = userDetailServiceImpl.login(request.getUsername());
+		final LoginResponse loginResponse = this.userDetailServiceImpl.login(request.getUsername());
 		return ResponseEntity.ok(loginResponse);
 	}
 
-	@PostMapping("/refresh-token")
+	@PostMapping(EndPointStore.REFRESH_TOKEN)
 	public ResponseEntity<?> refreshToken(HttpServletRequest request) {
-		RefreshTokenResponse result = userDetailServiceImpl.generateNewAccessToken(request);
+		final RefreshTokenResponse result = userDetailServiceImpl.generateNewAccessToken(request);
 		return ResponseEntity.ok(result);
 	}
 }

@@ -26,10 +26,10 @@ public class UnAuthorizedUserAuthenticationEntryPoint implements AuthenticationE
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
 		final Map<String, Object> body = new HashMap<>();
-		body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-		body.put("error", "Unauthorized");
-		body.put("message", authException.getMessage());
-		body.put("path", request.getServletPath());
+		body.put(ErrorMessageStore.STATUS, HttpServletResponse.SC_UNAUTHORIZED);
+		body.put(ErrorMessageStore.ERROR, ErrorMessageStore.UNAUTHORIZED);
+		body.put(ErrorMessageStore.MESSAGE, authException.getMessage());
+		body.put(ErrorMessageStore.PATH, request.getServletPath());
 
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(response.getOutputStream(), body);

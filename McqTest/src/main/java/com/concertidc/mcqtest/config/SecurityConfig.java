@@ -42,31 +42,26 @@ public class SecurityConfig {
 
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptEncoder);
+		auth.userDetailsService(this.userDetailsService).passwordEncoder(this.bCryptEncoder);
 	}
 
 	@Bean
 	protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		http
-			.csrf().disable().authorizeHttpRequests()
-			.requestMatchers("/home/**").permitAll()
-			.requestMatchers("/admin/**").hasAuthority("Admin")
-			.requestMatchers("/user/**").hasAuthority("User")
-			.and()
-			.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-			.and()
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and()
-			.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
+		http.csrf().disable().authorizeHttpRequests().requestMatchers(AuthConstantStore.COMMON_URL).permitAll()
+				.requestMatchers(AuthConstantStore.ADMIN_URL).hasAuthority(AuthConstantStore.ROLE_ADMIN)
+				.requestMatchers(AuthConstantStore.USER_URL).hasAuthority(AuthConstantStore.ROLE_USER).and()
+				.exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint).and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				.addFilterBefore(this.securityFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userDetailsService);
-		authenticationProvider.setPasswordEncoder(bCryptEncoder);
+		authenticationProvider.setUserDetailsService(this.userDetailsService);
+		authenticationProvider.setPasswordEncoder(this.bCryptEncoder);
 		return authenticationProvider;
 	}
 

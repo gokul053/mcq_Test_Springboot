@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.concertidc.mcqtest.config.EndPointStore;
 import com.concertidc.mcqtest.dto.QuestionsDto;
 import com.concertidc.mcqtest.model.Department;
 import com.concertidc.mcqtest.model.Questions;
@@ -18,10 +19,8 @@ import com.concertidc.mcqtest.model.Users;
 import com.concertidc.mcqtest.service.McqService;
 import com.concertidc.mcqtest.service.UserDetailServiceImpl;
 
-import jakarta.validation.ConstraintViolationException;
-
 @RestController
-@RequestMapping("/admin")
+@RequestMapping(EndPointStore.ADMIN_ENDPOINT)
 public class AdminController {
 
 	@Autowired
@@ -30,32 +29,31 @@ public class AdminController {
 	@Autowired
 	public UserDetailServiceImpl userDetailServiceImpl;
 
-	@PostMapping("/update-department-list")
+	@PostMapping(EndPointStore.UPDATE_DEPARTMENT_LIST)
 	public ResponseEntity<?> updateDepartmentList(@RequestBody Department department) {
 		final String code = this.mcqService.updateDepartmentList(department);
 		final String message = "Department with code " + code + " saved successfully";
 		return ResponseEntity.ok(message);
 	}
 
-	@PostMapping("/save-user")
+	@PostMapping(EndPointStore.SAVE_USER)
 	public ResponseEntity<?> saveUser(@RequestBody Users user) throws SQLException {
 		return this.userDetailServiceImpl.saveUser(user);
 	}
 
-	@PostMapping("/create-questions")
-	public ResponseEntity<?> createQuestions(@RequestBody Questions questions) throws ConstraintViolationException {
+	@PostMapping(EndPointStore.CREATE_QUESTIONS)
+	public ResponseEntity<?> createQuestions(@RequestBody List<Questions> questions) {
 		return this.mcqService.createQuestions(questions);
 	}
 
-	@GetMapping("/display-questions")
+	@GetMapping(EndPointStore.DISPLAY_QUESTIONS)
 	public List<QuestionsDto> displayQuestions() {
 		return this.mcqService.displayQuestions();
 	}
-	
-	@GetMapping("/all-user-marks")
-	public ResponseEntity<?> calculateMarks()
-	{
-		return ResponseEntity.ok(mcqService.calculateMarks());
+
+	@GetMapping(EndPointStore.USER_MARKS)
+	public ResponseEntity<?> calculateMarks() {
+		return ResponseEntity.ok(this.mcqService.calculateMarks());
 	}
 
 }

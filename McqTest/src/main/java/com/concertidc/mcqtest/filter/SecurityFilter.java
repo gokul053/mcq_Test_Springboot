@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.concertidc.mcqtest.config.AuthConstantStore;
+import com.concertidc.mcqtest.config.ErrorMessageStore;
 import com.concertidc.mcqtest.utils.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,7 +33,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private JwtUtils jwtUtils;
-	
+
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -41,13 +43,14 @@ public class SecurityFilter extends OncePerRequestFilter {
 		try {
 			String requestURL = request.getRequestURL().toString();
 			if (requestURL.contains("refresh-token")) {
-				String isRefreshToken = request.getHeader("isRefreshToken");
-				String username = jwtUtils.getSubject(isRefreshToken);
-				boolean isValidType = jwtUtils.getTokenType(isRefreshToken).contains("RefreshToken");
+				final String isRefreshToken = request.getHeader(AuthConstantStore.HEADER_STRING_REFRESH);
+				final String username = this.jwtUtils.getSubject(isRefreshToken);
+				final boolean isValidType = this.jwtUtils.getTokenType(isRefreshToken)
+						.contains(AuthConstantStore.TOKEN_TYPE_B);
 				if (isRefreshToken != null && isValidType) {
 					if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-						UserDetails user = userDetailsService.loadUserByUsername(username);
-						boolean isValid = jwtUtils.isValidToken(isRefreshToken, user.getUsername());
+						final UserDetails user = this.userDetailsService.loadUserByUsername(username);
+						final boolean isValid = this.jwtUtils.isValidToken(isRefreshToken, user.getUsername());
 						if (isValid) {
 							UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
 									username, user.getPassword(), user.getAuthorities());
@@ -56,15 +59,15 @@ public class SecurityFilter extends OncePerRequestFilter {
 						}
 					}
 				} else {
-					throw new AuthenticationException("Token Type Mismatch: Not a refresh Token");
+					throw new AuthenticationException(ErrorMessageStore.TOKEN_TYPE_ERROR);
 				}
 			} else {
-				String token = request.getHeader("Authorization");
+				final String token = request.getHeader(AuthConstantStore.HEADER_STRING);
 				if (token != null) {
-					String username = jwtUtils.getSubject(token);
+					final String username = this.jwtUtils.getSubject(token);
 					if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-						UserDetails user = userDetailsService.loadUserByUsername(username);
-						boolean isValid = jwtUtils.isValidToken(token, user.getUsername());
+						final UserDetails user = this.userDetailsService.loadUserByUsername(username);
+						final boolean isValid = jwtUtils.isValidToken(token, user.getUsername());
 						if (isValid) {
 							UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
 									username, user.getPassword(), user.getAuthorities());
@@ -76,23 +79,30 @@ public class SecurityFilter extends OncePerRequestFilter {
 			}
 			filterChain.doFilter(request, response);
 		} catch (AuthenticationException | SignatureException | MalformedJwtException exception) {
+
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+
 			final Map<String, Object> body = new HashMap<>();
-			body.put("status", HttpServletResponse.SC_NOT_ACCEPTABLE);
-			body.put("error", "Unauthorized");
-			body.put("message", exception.getMessage());
-			body.put("path", request.getServletPath());
+			body.put(ErrorMessageStore.STATUS, HttpServletResponse.SC_NOT_ACCEPTABLE);
+			body.put(ErrorMessageStore.ERROR, ErrorMessageStore.UNAUTHORIZED);
+			body.put(ErrorMessageStore.MESSAGE, exception.getMessage());
+			body.put(ErrorMessageStore.PATH, request.getServletPath());
+
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(response.getOutputStream(), body);
+
 		} catch (ExpiredJwtException jwtException) {
+
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+
 			final Map<String, Object> body = new HashMap<>();
-			body.put("status", HttpServletResponse.SC_NOT_ACCEPTABLE);
-			body.put("error", "Unauthorized");
-			body.put("message", "Access Token Expired");
-			body.put("path", request.getServletPath());
+			body.put(ErrorMessageStore.STATUS, HttpServletResponse.SC_NOT_ACCEPTABLE);
+			body.put(ErrorMessageStore.ERROR, ErrorMessageStore.UNAUTHORIZED);
+			body.put(ErrorMessageStore.MESSAGE, "Access Token Expired");
+			body.put(ErrorMessageStore.PATH, request.getServletPath());
+
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(response.getOutputStream(), body);
 		}

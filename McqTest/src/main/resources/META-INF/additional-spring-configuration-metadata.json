@@ -5,6 +5,11 @@
     "description": "A description for 'app.secret.key'"
   },
   {
+    "name": "app.tokenid.randomnumberlimit",
+    "type": "java.lang.String",
+    "description": "A description for 'app.tokenid.randomnumberlimit'"
+  },
+  {
     "name": "app.refreshtoken.expiryinhours",
     "type": "java.lang.String",
     "description": "A description for 'app.refreshtoken.expiryinhours'"
