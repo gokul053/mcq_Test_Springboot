@@ -82,7 +82,7 @@ public class JwtUtils {
 					.parseClaimsJws(rawtoken).getHeader().getType();
 		}
 	}
-
+	
 	// code to check if token is valid as per username
 	public boolean isValidToken(String token, String username) {
 		final String tokenUserName = getSubject(token);

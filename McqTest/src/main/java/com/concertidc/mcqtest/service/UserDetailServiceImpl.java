@@ -77,7 +77,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		}
 		user.setPassword(bCryptEncoder.encode(user.getPassword()));
 		this.usersRepository.save(user);
-		return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.USER_SAVED));
+		return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(ServiceConstantStore.USER_SAVED));
 	}
 
 	public Optional<Users> findByUsername(String username) {
@@ -90,10 +90,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		final String refreshToken = this.jwtUtils.generateRefreshToken(username);
 		final Users users = this.usersRepository.findByUsername(username)
 				.orElseThrow(() -> new EntityNotFoundException(ServiceConstantStore.USER_NOT_FOUND));
-		LoginResponse userResponse = new LoginResponse();
+		final LoginResponse userResponse = new LoginResponse();
 		userResponse.setAddress(users.getAddress());
 		userResponse.setDepartment(users.getDepartment().getDepartmentName());
-		userResponse.setEmail(users.getEmail());
 		userResponse.setFirstName(users.getFirstName());
 		userResponse.setLastName(users.getLastName());
 		userResponse.setUsername(username);
@@ -105,7 +104,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
 	//  Refresh Token Code
 	public RefreshTokenResponse generateNewAccessToken(HttpServletRequest request) {
-		RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse();
+		final RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse();
 		final String refreshToken = request.getHeader(AuthConstantStore.HEADER_STRING_REFRESH);
 		final String username = this.jwtUtils.getSubject(refreshToken);
 		final String token = this.jwtUtils.generateRefreshToken(username);

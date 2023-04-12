@@ -8,6 +8,7 @@ public class ErrorMessageStore {
 	public static final String PATH = "path";
 	public static final String UNAUTHORIZED = "Unauthorized";
 	public static final String TOKEN_TYPE_ERROR = "Token Type Mismatch: Not a refresh Token";
+	public static final String TOKEN_TYPE_ERROR_2 = "Token Type Mismatch: Not an Access Token";
 	public static final String USER_NOT_FOUND = "Username not found in the Database!";
 	public static final String PASSWORD_ERROR = "Password Error";
 	public static final String USER_EXISTS = "Username OR Email Already Exists";

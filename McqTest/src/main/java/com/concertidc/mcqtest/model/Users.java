@@ -30,8 +30,6 @@ public class Users {
 	@NotNull
 	private String lastName;
 	@NotNull
-	private String email;
-	@NotNull
 	private String password;
 
 	@ManyToOne
@@ -75,15 +73,7 @@ public class Users {
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
+	
 	public Department getDepartment() {
 		return department;
 	}

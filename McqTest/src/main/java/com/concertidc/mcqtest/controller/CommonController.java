@@ -1,10 +1,13 @@
 package com.concertidc.mcqtest.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +17,8 @@ import com.concertidc.mcqtest.dto.RefreshTokenResponse;
 import com.concertidc.mcqtest.config.EndPointStore;
 import com.concertidc.mcqtest.dto.LoginRequest;
 import com.concertidc.mcqtest.dto.LoginResponse;
+import com.concertidc.mcqtest.dto.QuestionsDto;
+import com.concertidc.mcqtest.service.McqService;
 import com.concertidc.mcqtest.service.UserDetailServiceImpl;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +32,9 @@ public class CommonController {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private McqService mcqService;
 
 	@PostMapping(EndPointStore.LOGIN_USER)
 	public ResponseEntity<?> login(@RequestBody LoginRequest request)
@@ -42,5 +50,10 @@ public class CommonController {
 	public ResponseEntity<?> refreshToken(HttpServletRequest request) {
 		final RefreshTokenResponse result = userDetailServiceImpl.generateNewAccessToken(request);
 		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping(EndPointStore.DISPLAY_QUESTIONS)
+	public List<QuestionsDto> displayQuestions() {
+		return this.mcqService.displayQuestions();
 	}
 }

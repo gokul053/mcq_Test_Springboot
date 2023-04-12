@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concertidc.mcqtest.config.EndPointStore;
-import com.concertidc.mcqtest.dto.QuestionsDto;
 import com.concertidc.mcqtest.model.Department;
 import com.concertidc.mcqtest.model.Questions;
 import com.concertidc.mcqtest.model.Users;
@@ -44,11 +43,6 @@ public class AdminController {
 	@PostMapping(EndPointStore.CREATE_QUESTIONS)
 	public ResponseEntity<?> createQuestions(@RequestBody List<Questions> questions) {
 		return this.mcqService.createQuestions(questions);
-	}
-
-	@GetMapping(EndPointStore.DISPLAY_QUESTIONS)
-	public List<QuestionsDto> displayQuestions() {
-		return this.mcqService.displayQuestions();
 	}
 
 	@GetMapping(EndPointStore.USER_MARKS)

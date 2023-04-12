@@ -48,12 +48,18 @@ public class SecurityConfig {
 	@Bean
 	protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		http.csrf().disable().authorizeHttpRequests().requestMatchers(AuthConstantStore.COMMON_URL).permitAll()
-				.requestMatchers(AuthConstantStore.ADMIN_URL).hasAuthority(AuthConstantStore.ROLE_ADMIN)
-				.requestMatchers(AuthConstantStore.USER_URL).hasAuthority(AuthConstantStore.ROLE_USER).and()
-				.exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint).and().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.addFilterBefore(this.securityFilter, UsernamePasswordAuthenticationFilter.class);
+		http.csrf().disable()
+			.authorizeHttpRequests()
+			.requestMatchers(AuthConstantStore.COMMON_URL).permitAll()
+			.requestMatchers(AuthConstantStore.ADMIN_URL).hasAuthority(AuthConstantStore.ROLE_ADMIN)
+			.requestMatchers(AuthConstantStore.USER_URL).hasAuthority(AuthConstantStore.ROLE_USER)
+			.and()
+			.exceptionHandling()
+			.authenticationEntryPoint(this.authenticationEntryPoint)
+			.and()
+			.sessionManagement()
+			.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+			.addFilterBefore(this.securityFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 

@@ -4,7 +4,6 @@ public class LoginResponse {
 
 	private Long userId;
 	private String username;
-	private String email;
 	private String firstName;
 	private String lastName;
 	private String department;
@@ -44,14 +43,6 @@ public class LoginResponse {
 		this.username = username;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public String getFirstName() {
 		return firstName;
 	}
@@ -87,11 +78,10 @@ public class LoginResponse {
 	public LoginResponse() {
 	}
 
-	public LoginResponse(Long userId, String username, String email, String firstName, String lastName,
+	public LoginResponse(Long userId, String username, String firstName, String lastName,
 			String department, String address, String accessToken, String refreshToken) {
 		this.userId = userId;
 		this.username = username;
-		this.email = email;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.department = department;

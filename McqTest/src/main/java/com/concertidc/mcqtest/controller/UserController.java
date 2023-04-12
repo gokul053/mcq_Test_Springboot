@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concertidc.mcqtest.config.EndPointStore;
-import com.concertidc.mcqtest.dto.QuestionsDto;
 import com.concertidc.mcqtest.model.UserAnswers;
 import com.concertidc.mcqtest.service.McqService;
 
@@ -24,14 +23,8 @@ public class UserController {
 	@Autowired
 	McqService mcqService;
 
-	@GetMapping(EndPointStore.DISPLAY_QUESTIONS)
-	public List<QuestionsDto> displayQuestions() {
-		return this.mcqService.displayQuestions();
-	}
-
 	@PostMapping(EndPointStore.WRITE_EXAM)
-	public ResponseEntity<?> writeExam(HttpServletRequest request,
-			@RequestBody List<UserAnswers> answerSheet) {
+	public ResponseEntity<?> writeExam(HttpServletRequest request, @RequestBody List<UserAnswers> answerSheet) {
 		return this.mcqService.writeExam(request, answerSheet);
 	}
 

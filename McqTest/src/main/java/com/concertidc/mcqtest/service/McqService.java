@@ -68,10 +68,12 @@ public class McqService {
 		final String username = this.jwtUtils.getSubject(request.getHeader(AuthConstantStore.HEADER_STRING));
 		final Users users = this.usersRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException(ServiceConstantStore.QUESTION_NOT_FOUND));
+		int count = 0;
 		first: for (UserAnswers userAnswer : userAnswers) {
 			final List<UserAnswers> checkAnswerList = answerSheetRepository.findByUsers(users);
 			for (UserAnswers checkAnswers : checkAnswerList) {
 				if (checkAnswers.getQuestions().getQuestionId().equals(userAnswer.getQuestions().getQuestionId())) {
+					count++;
 					continue first;
 				}
 			}
@@ -82,7 +84,14 @@ public class McqService {
 			userAnswer.setAnswer(userAnswer.getAnswer());
 			this.answerSheetRepository.save(userAnswer);
 		}
+		if(count>0)
+		{
+			return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.REPEATED_ANSWER));
+		}
+		else
+		{
 		return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.ANSWER_SAVED));
+		}
 	}
 
 	// Display User Result
@@ -142,6 +151,9 @@ public class McqService {
 				int count = 0;
 				int totalMarks = 0;
 				final List<UserAnswers> answerSheets = this.answerSheetRepository.findByUsers(user);
+				if (answerSheets.isEmpty()) {
+					continue;
+				}
 				final List<Questions> questions = this.questionsRepository.findAll();
 				final List<String> answer = new ArrayList<>();
 				final List<String> answerKey = new ArrayList<>();
@@ -163,7 +175,7 @@ public class McqService {
 				usersDto.setLastName(user.getLastName());
 				usersDto.setTotalMarks(totalMarks);
 				usersDto.setObtainedMarks(count);
-				if (count > 5) {
+				if (count >= 5) {
 					passUserList.add(usersDto);
 				} else {
 					failUserList.add(usersDto);
