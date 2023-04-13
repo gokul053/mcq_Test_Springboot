@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,9 +44,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 			if (requestURL.contains("refresh-token")) {
 				final String isRefreshToken = request.getHeader(AuthConstantStore.HEADER_STRING_REFRESH);
 				final String username = this.jwtUtils.getSubject(isRefreshToken);
-				final boolean isValidType = this.jwtUtils.getTokenType(isRefreshToken)
-						.contains(AuthConstantStore.TOKEN_TYPE_B);
-				if (isRefreshToken != null && isValidType) {
+				if (isRefreshToken != null) {
 					if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 						final UserDetails user = this.userDetailsService.loadUserByUsername(username);
 						final boolean isValid = this.jwtUtils.isValidToken(isRefreshToken, user.getUsername());
@@ -58,13 +55,10 @@ public class SecurityFilter extends OncePerRequestFilter {
 							SecurityContextHolder.getContext().setAuthentication(authToken);
 						}
 					}
-				} else {
-					throw new AuthenticationException(ErrorMessageStore.TOKEN_TYPE_ERROR);
 				}
 			} else {
 				final String token = request.getHeader(AuthConstantStore.HEADER_STRING);
 				if (token != null) {
-					if (this.jwtUtils.getTokenType(token).contains(AuthConstantStore.TOKEN_TYPE_A)) {
 						final String username = this.jwtUtils.getSubject(token);
 						if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 							final UserDetails user = this.userDetailsService.loadUserByUsername(username);
@@ -76,13 +70,10 @@ public class SecurityFilter extends OncePerRequestFilter {
 								SecurityContextHolder.getContext().setAuthentication(authToken);
 							}
 						}
-					} else {
-						throw new AuthenticationException(ErrorMessageStore.TOKEN_TYPE_ERROR_2);
-					}
 				}
 			}
 			filterChain.doFilter(request, response);
-		} catch (AuthenticationException | SignatureException | MalformedJwtException exception) {
+		} catch ( SignatureException | MalformedJwtException exception) {
 
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);

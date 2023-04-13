@@ -68,4 +68,11 @@ public class ErrorhandlerControllerAdvice {
 		final String message = ErrorMessageStore.ERROR_OCCURED;
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
 	}
+	
+	@ExceptionHandler(DuplicateAnswerException.class)
+	public ResponseEntity<?> duplicateAnswerException()
+	{
+		final String message = ErrorMessageStore.DUPLICATE_ENTRY;
+		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new ResponseMessage(message));
+	}
 }

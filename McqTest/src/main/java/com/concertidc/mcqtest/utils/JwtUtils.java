@@ -58,8 +58,8 @@ public class JwtUtils {
 
 		if (rawtoken.startsWith(AuthConstantStore.TOKEN_PREFIX)) {
 			final String token = rawtoken.substring(7, rawtoken.length());
-			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes())).parseClaimsJws(token)
-					.getBody();
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes()))
+					.parseClaimsJws(token).getBody();
 		} else {
 			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes()))
 					.parseClaimsJws(rawtoken).getBody();
@@ -75,14 +75,14 @@ public class JwtUtils {
 	public String getTokenType(String rawtoken) {
 		if (rawtoken.startsWith(AuthConstantStore.TOKEN_PREFIX)) {
 			final String token = rawtoken.substring(7, rawtoken.length());
-			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes())).parseClaimsJws(token)
-					.getHeader().getType();
+			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes()))
+					.parseClaimsJws(token).getHeader().getType();
 		} else {
 			return Jwts.parser().setSigningKey(Base64.getEncoder().encode(this.secretKey.getBytes()))
 					.parseClaimsJws(rawtoken).getHeader().getType();
 		}
 	}
-	
+
 	// code to check if token is valid as per username
 	public boolean isValidToken(String token, String username) {
 		final String tokenUserName = getSubject(token);

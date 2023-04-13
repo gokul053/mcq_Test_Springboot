@@ -17,4 +17,5 @@ public class ErrorMessageStore {
 	public static final String FIELD_IS_NULL = "Field Can't be null";
 	public static final String ERROR_OCCURED = "Error Occured";
 	public static final String ENTITY_EXISTS = "Department Already Exists";
+	public static final String DUPLICATE_ENTRY = "You've Already Answered the Questions";
 }

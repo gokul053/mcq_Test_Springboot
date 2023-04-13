@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concertidc.mcqtest.config.EndPointStore;
+import com.concertidc.mcqtest.dto.AllUserDto;
 import com.concertidc.mcqtest.model.Department;
 import com.concertidc.mcqtest.model.Questions;
 import com.concertidc.mcqtest.model.Users;
@@ -48,6 +50,18 @@ public class AdminController {
 	@GetMapping(EndPointStore.USER_MARKS)
 	public ResponseEntity<?> calculateMarks() {
 		return ResponseEntity.ok(this.mcqService.calculateMarks());
+	}
+	
+	@DeleteMapping(EndPointStore.RESET_TEST)
+	public ResponseEntity<?> reintializeTest() {
+		return mcqService.reintializeTest();
+	}
+	
+	@GetMapping("/list-all-users")
+	public ResponseEntity<?> listAllUsers()
+	{
+		List<AllUserDto> userList =  mcqService.listAllUsers();
+		return ResponseEntity.ok(userList);
 	}
 
 }

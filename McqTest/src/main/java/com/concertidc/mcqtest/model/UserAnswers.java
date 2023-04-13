@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class UserAnswers {
@@ -14,7 +15,7 @@ public class UserAnswers {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long answerId;
-
+	@NotNull
 	private String answer;
 
 	@OneToOne
@@ -24,7 +25,7 @@ public class UserAnswers {
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private Users users;
-
+	
 	public Questions getQuestions() {
 		return questions;
 	}

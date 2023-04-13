@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.concertidc.mcqtest.advice.InputFormatErrorException;
 import com.concertidc.mcqtest.config.AuthConstantStore;
@@ -70,6 +71,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 	}
 
 	//  Save Users to the Database
+	@Transactional
 	public ResponseEntity<?> saveUser(Users user) {
 		if (this.departmentRepository.findByDepartmentCode(user.getDepartment().getDepartmentCode()).isEmpty()) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -107,7 +109,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		final RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse();
 		final String refreshToken = request.getHeader(AuthConstantStore.HEADER_STRING_REFRESH);
 		final String username = this.jwtUtils.getSubject(refreshToken);
-		final String token = this.jwtUtils.generateRefreshToken(username);
+		final String token = this.jwtUtils.generateToken(username);
 		refreshTokenResponse.setUsername(username);
 		refreshTokenResponse.setNewAccessToken(token);
 		return refreshTokenResponse;

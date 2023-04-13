@@ -14,4 +14,5 @@ public class EndPointStore {
 	public static final String REFRESH_TOKEN ="/refresh-token";
 	public static final String WRITE_EXAM ="/write-exam";
 	public static final String RESULT ="/display-result";
+	public static final String RESET_TEST = "/reintialize-test";
 }

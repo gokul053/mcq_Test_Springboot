@@ -16,7 +16,7 @@ public class Questions {
 	private String question;
 
 	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "questionId")
+	@JoinColumn(name = "optionId")
 	private Options options;
 
 	@OneToOne(cascade = CascadeType.ALL)

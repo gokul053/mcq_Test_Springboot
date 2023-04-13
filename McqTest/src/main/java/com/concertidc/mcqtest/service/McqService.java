@@ -8,17 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.concertidc.mcqtest.advice.DuplicateAnswerException;
 import com.concertidc.mcqtest.advice.QuestionNotFoundException;
 import com.concertidc.mcqtest.config.AuthConstantStore;
 import com.concertidc.mcqtest.config.ServiceConstantStore;
+import com.concertidc.mcqtest.dto.AllUserDto;
 import com.concertidc.mcqtest.dto.MarksFilter;
 import com.concertidc.mcqtest.dto.QuestionsDto;
 import com.concertidc.mcqtest.dto.ResponseMessage;
 import com.concertidc.mcqtest.dto.UsersDto;
-import com.concertidc.mcqtest.model.UserAnswers;
 import com.concertidc.mcqtest.model.Department;
 import com.concertidc.mcqtest.model.Questions;
+import com.concertidc.mcqtest.model.UserAnswers;
 import com.concertidc.mcqtest.model.Users;
 import com.concertidc.mcqtest.repository.AnswerKeyRepository;
 import com.concertidc.mcqtest.repository.AnswerSheetRepository;
@@ -57,6 +60,7 @@ public class McqService {
 	JwtUtils jwtUtils;
 
 	// Creating Questions and Saving in DB
+	@Transactional
 	public ResponseEntity<?> createQuestions(List<Questions> questions) {
 		this.questionsRepository.deleteAll();
 		this.questionsRepository.saveAll(questions);
@@ -64,34 +68,24 @@ public class McqService {
 	}
 
 	// Write Exam By Users
+	@Transactional
 	public ResponseEntity<?> writeExam(HttpServletRequest request, List<UserAnswers> userAnswers) {
 		final String username = this.jwtUtils.getSubject(request.getHeader(AuthConstantStore.HEADER_STRING));
 		final Users users = this.usersRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException(ServiceConstantStore.QUESTION_NOT_FOUND));
-		int count = 0;
-		first: for (UserAnswers userAnswer : userAnswers) {
-			final List<UserAnswers> checkAnswerList = answerSheetRepository.findByUsers(users);
-			for (UserAnswers checkAnswers : checkAnswerList) {
-				if (checkAnswers.getQuestions().getQuestionId().equals(userAnswer.getQuestions().getQuestionId())) {
-					count++;
-					continue first;
-				}
-			}
-			final Questions questions = this.questionsRepository.findById(userAnswer.getQuestions().getQuestionId())
-					.orElseThrow(() -> new QuestionNotFoundException());
-			userAnswer.setUsers(users);
-			userAnswer.setQuestions(questions);
-			userAnswer.setAnswer(userAnswer.getAnswer());
-			this.answerSheetRepository.save(userAnswer);
+		if (this.answerSheetRepository.findByUsers(users).isEmpty()) {
+			userAnswers.forEach(userAnswer -> {
+				final Questions questions = this.questionsRepository.findById(userAnswer.getQuestions().getQuestionId())
+						.orElseThrow(() -> new QuestionNotFoundException());
+				userAnswer.setUsers(users);
+				userAnswer.setQuestions(questions);
+				userAnswer.setAnswer(userAnswer.getAnswer());
+				this.answerSheetRepository.save(userAnswer);
+			});
+		} else {
+			throw new DuplicateAnswerException();
 		}
-		if(count>0)
-		{
-			return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.REPEATED_ANSWER));
-		}
-		else
-		{
 		return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.ANSWER_SAVED));
-		}
 	}
 
 	// Display User Result
@@ -99,17 +93,13 @@ public class McqService {
 		final String username = this.jwtUtils.getSubject(request.getHeader(AuthConstantStore.HEADER_STRING));
 		final Users users = this.usersRepository.findByUsername(username)
 				.orElseThrow(() -> new EntityNotFoundException(ServiceConstantStore.USER_NOT_FOUND));
-		final List<UserAnswers> answerSheets = this.answerSheetRepository.findByUsers(users);
+		final List<UserAnswers> userAnswers = this.answerSheetRepository.findByUsers(users);
 		final List<Questions> questions = this.questionsRepository.findAll();
 		final List<String> answer = new ArrayList<>();
 		final List<String> answerKey = new ArrayList<>();
 		int count = 0;
-		for (UserAnswers answerSheet : answerSheets) {
-			answer.add(answerSheet.getAnswer());
-		}
-		for (Questions question : questions) {
-			answerKey.add(question.getAnswerKey().getAnswerKey());
-		}
+		userAnswers.forEach(userAnswer -> answer.add(userAnswer.getAnswer()));
+		questions.forEach(question -> answerKey.add(question.getAnswerKey().getAnswerKey()));
 		for (int i = 0; i < answer.size(); i++) {
 			if (answer.get(i) != null && answerKey.get(i) != null) {
 				if (answer.get(i).equals(answerKey.get(i))) {
@@ -146,24 +136,19 @@ public class McqService {
 		final List<UsersDto> passUserList = new ArrayList<>();
 		final List<UsersDto> failUserList = new ArrayList<>();
 		final List<MarksFilter> marksList = new ArrayList<>();
-		for (Users user : users) {
+		users.forEach(user ->  {
 			if (user.getRoles().contains(AuthConstantStore.ROLE_USER)) {
 				int count = 0;
-				int totalMarks = 0;
-				final List<UserAnswers> answerSheets = this.answerSheetRepository.findByUsers(user);
-				if (answerSheets.isEmpty()) {
-					continue;
+				final List<UserAnswers> userAnswers = this.answerSheetRepository.findByUsers(user);
+				if (userAnswers.isEmpty()) {
+					return;
 				}
 				final List<Questions> questions = this.questionsRepository.findAll();
 				final List<String> answer = new ArrayList<>();
 				final List<String> answerKey = new ArrayList<>();
-				for (UserAnswers answerSheet : answerSheets) {
-					answer.add(answerSheet.getAnswer());
-				}
-				for (Questions question : questions) {
-					answerKey.add(question.getAnswerKey().getAnswerKey());
-					totalMarks++;
-				}
+				userAnswers.forEach(userAnswer -> answer.add(userAnswer.getAnswer()));
+				questions.forEach(question -> answerKey.add(question.getAnswerKey().getAnswerKey()));
+				int totalMarks = answerKey.size();
 				for (int i = 0; i < answer.size(); i++) {
 					if (answer.get(i).equals(answerKey.get(i))) {
 						count++;
@@ -181,7 +166,7 @@ public class McqService {
 					failUserList.add(usersDto);
 				}
 			}
-		}
+		});
 		final MarksFilter marksFilter = new MarksFilter();
 		marksFilter.setPassedCandidates(passUserList);
 		marksFilter.setFailedCandidates(failUserList);
@@ -190,14 +175,40 @@ public class McqService {
 	}
 
 	// Update Department Table
+	@Transactional
 	public String updateDepartmentList(Department department) {
 		final List<Department> departmentList = this.departmentRepository
 				.findByDepartmentCode(department.getDepartmentCode());
 		if (departmentList.isEmpty()) {
-			throw new EntityExistsException("Department already Exist in the Database");
+			throw new EntityExistsException(ServiceConstantStore.DEPARTMENT_EXISTS);
 		}
 		final String code = this.departmentRepository.save(department).getDepartmentCode();
 		return code;
 	}
+
+	// Reintializing Test
+	public ResponseEntity<?> reintializeTest() {
+		this.answerSheetRepository.deleteAll();
+		this.questionsRepository.deleteAll();
+		return ResponseEntity.ok(new ResponseMessage("All data's are Deleted"));
+	}
+
+	// All User List
+	public List<AllUserDto> listAllUsers() {
+		return this.usersRepository.findAll().stream().map(this::convertingUsersDto)
+				.collect(Collectors.toList());
+	}
+	
+	public AllUserDto convertingUsersDto(Users users)
+	{
+		AllUserDto allUserDto = new AllUserDto();
+		allUserDto.setUsername(users.getUsername());
+		allUserDto.setFirstName(users.getFirstName());
+		allUserDto.setLastName(users.getLastName());
+		allUserDto.setDepartment(users.getDepartment().getDepartmentName());
+		allUserDto.setAddress(users.getAddress());
+		return allUserDto;
+	}
+	
 
 }
