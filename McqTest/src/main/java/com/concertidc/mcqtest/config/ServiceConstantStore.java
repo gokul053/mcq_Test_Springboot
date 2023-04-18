@@ -11,4 +11,5 @@ public class ServiceConstantStore {
 	public static final String INVALID_DEPT_CODE = "Department Code is Invalid";
 	public static final String USER_SAVED = "User Saved in the DataBase";
 	public static final String DEPARTMENT_EXISTS = "Department already exists in the DataBase";
+	public static final String POP_UP_RESET = "Reset Application Before Adding new Set of Questions";
 }

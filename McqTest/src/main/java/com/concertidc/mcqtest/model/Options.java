@@ -59,4 +59,14 @@ public class Options {
 	public Options() {
 
 	}
+
+	public Options(Long questionNumber, String a, String b, String c, String d) {
+		this.questionNumber = questionNumber;
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+	}
+
+	
 }

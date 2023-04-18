@@ -46,7 +46,7 @@ public class CommonController {
 		return ResponseEntity.ok(loginResponse);
 	}
 
-	@PostMapping(EndPointStore.REFRESH_TOKEN)
+	@GetMapping(EndPointStore.REFRESH_TOKEN)
 	public ResponseEntity<?> refreshToken(HttpServletRequest request) {
 		final RefreshTokenResponse result = userDetailServiceImpl.generateNewAccessToken(request);
 		return ResponseEntity.ok(result);

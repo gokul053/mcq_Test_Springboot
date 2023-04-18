@@ -4,13 +4,10 @@ com\concertidc\mcqtest\filter\SecurityFilter.class
 com\concertidc\mcqtest\dto\LoginResponse.class
 com\concertidc\mcqtest\repository\OptionsRepository.class
 com\concertidc\mcqtest\config\SecurityConfig.class
-com\concertidc\mcqtest\service\IUserDetailService.class
-com\concertidc\mcqtest\service\McqServiceImpl.class
 com\concertidc\mcqtest\repository\AnswerKeyRepository.class
 com\concertidc\mcqtest\repository\DepartmentRepository.class
 com\concertidc\mcqtest\McqTestApplication.class
 com\concertidc\mcqtest\model\AnswerKey.class
-com\concertidc\mcqtest\model\AnswerSheet.class
 com\concertidc\mcqtest\repository\AnswerSheetRepository.class
 com\concertidc\mcqtest\repository\UsersRepository.class
 com\concertidc\mcqtest\model\Department.class
@@ -20,11 +17,9 @@ com\concertidc\mcqtest\config\UnAuthorizedUserAuthenticationEntryPoint.class
 com\concertidc\mcqtest\dto\LoginRequest.class
 com\concertidc\mcqtest\utils\JwtUtils.class
 com\concertidc\mcqtest\config\AppConfig.class
-com\concertidc\mcqtest\controller\HomeController.class
 com\concertidc\mcqtest\controller\UserController.class
 com\concertidc\mcqtest\dto\UsersDto.class
 com\concertidc\mcqtest\controller\AdminController.class
-com\concertidc\mcqtest\dto\ErrorMessage.class
 com\concertidc\mcqtest\dto\QuestionsDto.class
 com\concertidc\mcqtest\service\UserDetailServiceImpl.class
 com\concertidc\mcqtest\model\Questions.class

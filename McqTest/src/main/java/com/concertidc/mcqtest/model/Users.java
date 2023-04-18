@@ -107,4 +107,18 @@ public class Users {
 
 	public Users() {
 	}
+
+	public Users(Long userId,String username,String firstName,String lastName,
+			String password, Department department, String address, Set<String> roles) {
+		this.userId = userId;
+		this.username = username;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.password = password;
+		this.department = department;
+		this.address = address;
+		this.roles = roles;
+	}
+	
+	
 }

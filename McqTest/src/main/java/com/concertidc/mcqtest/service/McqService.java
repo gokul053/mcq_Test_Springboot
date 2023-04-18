@@ -62,9 +62,12 @@ public class McqService {
 	// Creating Questions and Saving in DB
 	@Transactional
 	public ResponseEntity<?> createQuestions(List<Questions> questions) {
-		this.questionsRepository.deleteAll();
-		this.questionsRepository.saveAll(questions);
-		return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.QUESTIONS_SAVED));
+		if (questionsRepository.findAll().isEmpty()) {
+			this.questionsRepository.saveAll(questions);
+			return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.QUESTIONS_SAVED));
+		} else {
+			return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.POP_UP_RESET));
+		}
 	}
 
 	// Write Exam By Users

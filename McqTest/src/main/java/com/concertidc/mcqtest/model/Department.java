@@ -29,4 +29,10 @@ public class Department {
 	public Department() {
 	}
 
+	public Department(String departmentCode, String departmentName) {
+		this.departmentCode = departmentCode;
+		this.departmentName = departmentName;
+	}
+
+	
 }

@@ -58,4 +58,13 @@ public class Questions {
 	public Questions() {
 
 	}
+
+	public Questions(Long questionId, @NotNull String question, Options options, AnswerKey answerKey) {
+		this.questionId = questionId;
+		this.question = question;
+		this.options = options;
+		this.answerKey = answerKey;
+	}
+	
+	
 }
