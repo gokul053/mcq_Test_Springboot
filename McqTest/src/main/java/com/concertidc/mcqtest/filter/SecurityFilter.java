@@ -100,6 +100,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(response.getOutputStream(), body);
-		}
+			
+		}	
 	}
 }

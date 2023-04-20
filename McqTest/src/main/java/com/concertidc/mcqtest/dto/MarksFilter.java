@@ -23,4 +23,12 @@ public class MarksFilter {
 		this.failedCandidates = failedCandidates;
 	}
 
+	public MarksFilter() {
+	}
+
+	public MarksFilter(List<UsersDto> passedCandidates, List<UsersDto> failedCandidates) {
+		this.passedCandidates = passedCandidates;
+		this.failedCandidates = failedCandidates;
+	}
+
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.concertidc.mcqtest.config.EndPointStore;
 import com.concertidc.mcqtest.dto.AllUserDto;
+import com.concertidc.mcqtest.dto.ResponseMessage;
 import com.concertidc.mcqtest.model.Department;
 import com.concertidc.mcqtest.model.Questions;
 import com.concertidc.mcqtest.model.Users;
@@ -38,12 +39,12 @@ public class AdminController {
 	}
 
 	@PostMapping(EndPointStore.SAVE_USER)
-	public ResponseEntity<?> saveUser(@RequestBody Users user) throws SQLException {
+	public ResponseEntity<ResponseMessage> saveUser(@RequestBody Users user) throws SQLException {
 		return this.userDetailServiceImpl.saveUser(user);
 	}
 
 	@PostMapping(EndPointStore.CREATE_QUESTIONS)
-	public ResponseEntity<?> createQuestions(@RequestBody List<Questions> questions) {
+	public ResponseEntity<ResponseMessage> createQuestions(@RequestBody List<Questions> questions) {
 		return this.mcqService.createQuestions(questions);
 	}
 

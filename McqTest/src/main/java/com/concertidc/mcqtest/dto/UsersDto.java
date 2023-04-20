@@ -48,4 +48,15 @@ public class UsersDto {
 		this.obtainedMarks = obtainedMarks;
 	}
 
+	public UsersDto(Long userId, String firstName, String lastName, int totalMarks, int obtainedMarks) {
+		this.userId = userId;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.totalMarks = totalMarks;
+		this.obtainedMarks = obtainedMarks;
+	}
+
+	public UsersDto() {
+	}
+
 }

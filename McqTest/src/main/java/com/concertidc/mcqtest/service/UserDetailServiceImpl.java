@@ -72,7 +72,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
 	//  Save Users to the Database
 	@Transactional
-	public ResponseEntity<?> saveUser(Users user) {
+	public ResponseEntity<ResponseMessage> saveUser(Users user) {
 		if (this.departmentRepository.findByDepartmentCode(user.getDepartment().getDepartmentCode()).isEmpty()) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body(new ResponseMessage(ServiceConstantStore.INVALID_DEPT_CODE));

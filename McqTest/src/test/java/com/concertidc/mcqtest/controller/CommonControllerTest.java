@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
@@ -47,22 +46,22 @@ import com.concertidc.mcqtest.utils.JwtUtils;
 class CommonControllerTest {
 
 	@Autowired
-	MockMvc mockMvc;
+	private MockMvc mockMvc;
 	
 	@InjectMocks
-	CommonController commonController;
+	private CommonController commonController;
 
 	@Mock
-	AuthenticationManager authenticationManager;
+	private AuthenticationManager authenticationManager;
 
 	@Mock
-	UserDetailServiceImpl userDetailServiceImpl;
+	private UserDetailServiceImpl userDetailServiceImpl;
 	
 	@MockBean
-	JwtUtils jwtUtils;
+	private JwtUtils jwtUtils;
 	
 	@MockBean
-	QuestionsRepository questionsRepository;
+	private QuestionsRepository questionsRepository;
 	
 
 	Department department;
@@ -103,8 +102,6 @@ class CommonControllerTest {
 				users.getAddress(), 
 				"ey_example_access_token",
 				"ey_example_refresh_token");
-		
-		when(userDetailServiceImpl.findByUsername("admin")).thenReturn(Optional.of(users));
 		when(userDetailServiceImpl.login("admin")).thenReturn(expectedResponse);
 		ResponseEntity<?> actualResponse = commonController.login(request);
 		assertEquals("200 OK", actualResponse.getStatusCode().toString());
@@ -129,12 +126,13 @@ class CommonControllerTest {
 		RefreshTokenResponse response = new RefreshTokenResponse("admin", "ey_new_access_token");
 		when(jwtUtils.getSubject(anyString())).thenReturn("admin");
 		when(jwtUtils.generateToken(anyString())).thenReturn("ey_new_access_token");
+		when(jwtUtils.isTokenExpired(anyString())).thenReturn(false);
+		when(jwtUtils.isValidToken(anyString())).thenReturn(true);
 		when(userDetailServiceImpl.generateNewAccessToken(request)).thenReturn(response);
-		ResultActions testResponse = mockMvc.perform(get("/home/refresh-token").header("isRefreshToken", "ey_refresh_token"));
+		ResultActions testResponse = mockMvc.perform(get("/home/refresh-token").header("isRefreshToken", "eyJ0eXAiOiJSZWZyZXNoVG9rZW4iLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI1NTkiLCJzdWIiOiJhZG1pbiIsImlzcyI6Im1jcXRlc3QuY29tIiwiYXVkIjoic3R1ZGVudHMiLCJpYXQiOjE2ODE4MTI0NTcsImV4cCI6MTY4MTgxNjA1N30.gzpNybHiAvsRb_ufxU-gbfPLqMWYISGvLimkOrRvhgo"));
 		testResponse
 		.andDo(print())
 		.andExpect(status().isOk())
 		.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 	}
-
 }

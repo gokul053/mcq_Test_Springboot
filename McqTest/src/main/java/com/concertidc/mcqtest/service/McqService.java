@@ -61,7 +61,7 @@ public class McqService {
 
 	// Creating Questions and Saving in DB
 	@Transactional
-	public ResponseEntity<?> createQuestions(List<Questions> questions) {
+	public ResponseEntity<ResponseMessage> createQuestions(List<Questions> questions) {
 		if (questionsRepository.findAll().isEmpty()) {
 			this.questionsRepository.saveAll(questions);
 			return ResponseEntity.ok(new ResponseMessage(ServiceConstantStore.QUESTIONS_SAVED));
@@ -72,7 +72,7 @@ public class McqService {
 
 	// Write Exam By Users
 	@Transactional
-	public ResponseEntity<?> writeExam(HttpServletRequest request, List<UserAnswers> userAnswers) {
+	public ResponseEntity<ResponseMessage> writeExam(HttpServletRequest request, List<UserAnswers> userAnswers) {
 		final String username = this.jwtUtils.getSubject(request.getHeader(AuthConstantStore.HEADER_STRING));
 		final Users users = this.usersRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException(ServiceConstantStore.QUESTION_NOT_FOUND));
@@ -182,7 +182,7 @@ public class McqService {
 	public String updateDepartmentList(Department department) {
 		final List<Department> departmentList = this.departmentRepository
 				.findByDepartmentCode(department.getDepartmentCode());
-		if (departmentList.isEmpty()) {
+		if (departmentList.isEmpty() == false) {
 			throw new EntityExistsException(ServiceConstantStore.DEPARTMENT_EXISTS);
 		}
 		final String code = this.departmentRepository.save(department).getDepartmentCode();

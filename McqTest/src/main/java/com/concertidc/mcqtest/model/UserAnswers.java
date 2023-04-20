@@ -25,7 +25,7 @@ public class UserAnswers {
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private Users users;
-	
+
 	public Questions getQuestions() {
 		return questions;
 	}
@@ -58,4 +58,13 @@ public class UserAnswers {
 		this.answer = answer;
 	}
 
+	public UserAnswers(Long answerId, @NotNull String answer, Questions questions, Users users) {
+		this.answerId = answerId;
+		this.answer = answer;
+		this.questions = questions;
+		this.users = users;
+	}
+
+	
+	
 }
