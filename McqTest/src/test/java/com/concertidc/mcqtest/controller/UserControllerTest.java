@@ -26,7 +26,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -54,6 +53,9 @@ class UserControllerTest {
 	@Autowired
 	private ObjectMapper mapper;
 
+	@Autowired
+	private JwtUtils jwtUtils;
+
 	@Mock
 	private UserController userController;
 
@@ -62,9 +64,6 @@ class UserControllerTest {
 
 	@Mock
 	private UserDetailServiceImpl userDetailServiceImpl;
-
-	@MockBean
-	private JwtUtils jwtUtils;
 
 	@MockBean
 	private UsersRepository userRepository;
@@ -81,89 +80,135 @@ class UserControllerTest {
 	Questions questions;
 	Options options;
 	UserAnswers userAnswers;
-	final Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+	String token;
+	Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
 	@BeforeEach
 	void setUp() {
+
 		Set<String> roles = new HashSet<>();
 		roles.add("User");
+
 		department = new Department("EE6503", "Electrical");
+
 		users = new Users((long) 1, "admin", "Gokul", "D", "password", department, "Paramathi", roles);
 
 		answerKey = new AnswerKey((long) 1, "a");
+
 		options = new Options((long) 1, "a", "b", "c", "d");
+
 		questions = new Questions((long) 1, "Odd One Out!", options, answerKey);
 
-		final Set<String> newRoles = users.getRoles();
+		Set<String> newRoles = users.getRoles();
+
 		for (String newRole : newRoles) {
 			grantedAuthorities.add(new SimpleGrantedAuthority(newRole));
 		}
 
 		userAnswers = new UserAnswers(1L, "a", questions, users);
 
+		token = jwtUtils.generateToken(users.getUsername());
 	}
 
 	@AfterEach
 	void tearDown() {
+
 		users = null;
 		questions = null;
 		department = null;
 		userAnswers = null;
+
 	}
 
+	/*
+	 * Test case for Write Exam API in which the User can perform the exam in this
+	 * endpoint and the Mock User details are given in order to get respective
+	 * response.
+	 */
 	@Test
 	void testWriteExam() throws Exception {
 
 		List<UserAnswers> mockAnswerList = new ArrayList<>();
 		mockAnswerList.add(userAnswers);
-		
+
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(users));
 		when(answerSheetRepository.save(any(UserAnswers.class))).thenReturn(userAnswers);
 		when(questionsRepository.findById(anyLong())).thenReturn(Optional.of(questions));
-		
-		when(userDetailServiceImpl.loadUserByUsername(anyString()))
-				.thenReturn(new User(users.getUsername(), users.getPassword(), grantedAuthorities));
-		when(jwtUtils.isTokenExpired(anyString())).thenReturn(false);
-		when(jwtUtils.getSubject(anyString())).thenReturn("admin");
-		when(jwtUtils.isValidToken(anyString())).thenReturn(true);
-		when(jwtUtils.isValidToken(anyString(), anyString())).thenReturn(true);
-		
-		ResultActions testResponse = mockMvc.perform(post("/user/write-exam").header("Authorization",
-				"eyJ0eXAiOiJBY2Nlc3NUb2tlbiIsImFsZyI6IkhTNTEyIn0.eyJqdGkiOiI2OTIiLCJzdWIiOiJhZG1pbiIsImlzcyI6Im1jcXRlc3QuY29tIiwiYXVkIjoic3R1ZGVudHMiLCJpYXQiOjE2ODE5MDEwNDYsImV4cCI6MTY4MTkwMTM0Nn0.IQrFibEtnweCry-ZKDI9j1TM2aFkAinMPNNJxQz6ymtsjrEhCVZ7PPY2EtCJ4Eac98TdXBGApGoDMmbE2_6uSA")
+
+		ResultActions testResponse = mockMvc.perform(post("/user/write-exam").header("Authorization", token)
 				.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(mockAnswerList)));
-		
+
 		assertEquals(200, testResponse.andReturn().getResponse().getStatus());
 		assertTrue(
 				testResponse.andReturn().getResponse().getContentAsString().contains("Answer Saved to the Database"));
 	}
 
-	
+	/*
+	 * If a User who already answered the question tries to answer again, this
+	 * Exception message is thrown which has been verified in this test case.
+	 */
+	@Test
+	void testIfAlreadyAnsweredError() throws Exception {
+
+		List<UserAnswers> mockAnswerList = new ArrayList<>();
+		mockAnswerList.add(userAnswers);
+
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(users));
+		when(answerSheetRepository.findByUsers(any(Users.class))).thenReturn(mockAnswerList);
+
+		ResultActions testResponse = mockMvc.perform(post("/user/write-exam").header("Authorization", token)
+				.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(mockAnswerList)));
+
+		assertEquals(406, testResponse.andReturn().getResponse().getStatus());
+		assertTrue(testResponse.andReturn().getResponse().getContentAsString()
+				.contains("You've Already Answered the Questions"));
+	}
+
+	/*
+	 * If an Max Question was 10 and a user tries to answer 11th question, an error
+	 * will be thrown which is verified in this Test case.
+	 */
+	@Test
+	void testIfInvalidQuestionAnsweredError() throws Exception {
+
+		List<UserAnswers> mockAnswerList = new ArrayList<>();
+		mockAnswerList.add(userAnswers);
+
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(users));
+		when(answerSheetRepository.save(any(UserAnswers.class))).thenReturn(userAnswers);
+		ResultActions testResponse = mockMvc.perform(post("/user/write-exam").header("Authorization", token)
+				.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(mockAnswerList)));
+
+		assertEquals(400, testResponse.andReturn().getResponse().getStatus());
+		assertTrue(testResponse.andReturn().getResponse().getContentAsString().contains("Question Number is Invalid"));
+
+	}
+
+	/*
+	 * Verifing the Display Result API in which Fetching the user details and
+	 * calculating the marks and displaying the result which is verified in this
+	 * test case.
+	 */
 	@Test
 	void testDisplayResult() throws Exception {
-		
+
 		List<UserAnswers> userAnswerList = new ArrayList<>();
 		List<Questions> questionList = new ArrayList<>();
-		for(int i = 1; i<=10; i++) {
+
+		for (int i = 1; i <= 10; i++) {
 			questionList.add(new Questions((long) i, "Odd One Out!", options, answerKey));
 		}
-		for(int i = 1; i<=10; i++) {
+		for (int i = 1; i <= 10; i++) {
 			userAnswerList.add(new UserAnswers((long) i, "a", questions, users));
 		}
+
 		when(answerSheetRepository.findByUsers(any(Users.class))).thenReturn(userAnswerList);
 		when(questionsRepository.findAll()).thenReturn(questionList);
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(users));
-		when(userDetailServiceImpl.loadUserByUsername(anyString()))
-		.thenReturn(new User(users.getUsername(), users.getPassword(), grantedAuthorities));
-		when(jwtUtils.isTokenExpired(anyString())).thenReturn(false);
-		when(jwtUtils.getSubject(anyString())).thenReturn("admin");
-		when(jwtUtils.isValidToken(anyString())).thenReturn(true);
-		when(jwtUtils.isValidToken(anyString(), anyString())).thenReturn(true);
 
-		ResultActions testResponse = mockMvc.perform(get("/user/display-result").header("Authorization",
-		"eyJ0eXAiOiJBY2Nlc3NUb2tlbiIsImFsZyI6IkhTNTEyIn0.eyJqdGkiOiI2OTIiLCJzdWIiOiJhZG1pbiIsImlzcyI6Im1jcXRlc3QuY29tIiwiYXVkIjoic3R1ZGVudHMiLCJpYXQiOjE2ODE5MDEwNDYsImV4cCI6MTY4MTkwMTM0Nn0.IQrFibEtnweCry-ZKDI9j1TM2aFkAinMPNNJxQz6ymtsjrEhCVZ7PPY2EtCJ4Eac98TdXBGApGoDMmbE2_6uSA"));
-		
+		ResultActions testResponse = mockMvc.perform(get("/user/display-result").header("Authorization", token));
+
 		assertEquals(200, testResponse.andReturn().getResponse().getStatus());
-		assertTrue(
-				testResponse.andReturn().getResponse().getContentAsString().contains("Marks : 10, You're Pass"));
+		assertTrue(testResponse.andReturn().getResponse().getContentAsString().contains("Marks : 10, You're Pass"));
 	}
 }

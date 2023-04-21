@@ -75,4 +75,11 @@ public class ErrorhandlerControllerAdvice {
 		final String message = ErrorMessageStore.DUPLICATE_ENTRY;
 		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new ResponseMessage(message));
 	}
+	
+	@ExceptionHandler(DataNotFoundException.class)
+	public ResponseEntity<?> dataNotFoundHandler()
+	{
+		final String message = ErrorMessageStore.DATA_NOT_FOUND;
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(message));
+	}
 }

@@ -18,4 +18,5 @@ public class ErrorMessageStore {
 	public static final String ERROR_OCCURED = "Error Occured";
 	public static final String ENTITY_EXISTS = "Department Already Exists";
 	public static final String DUPLICATE_ENTRY = "You've Already Answered the Questions";
+	public static final String DATA_NOT_FOUND = "Requested data not found, Contact Admin";
 }

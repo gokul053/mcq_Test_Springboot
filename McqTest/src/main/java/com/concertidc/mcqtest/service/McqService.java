@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.concertidc.mcqtest.advice.DataNotFoundException;
 import com.concertidc.mcqtest.advice.DuplicateAnswerException;
 import com.concertidc.mcqtest.advice.QuestionNotFoundException;
 import com.concertidc.mcqtest.config.AuthConstantStore;
@@ -118,6 +119,9 @@ public class McqService {
 
 	// Display All Questions
 	public List<QuestionsDto> displayQuestions() {
+		if(this.questionsRepository.findAll().isEmpty()) {
+			throw new DataNotFoundException();
+		}
 		return this.questionsRepository.findAll().stream().map(this::convertingQuestionsDto)
 				.collect(Collectors.toList());
 	}

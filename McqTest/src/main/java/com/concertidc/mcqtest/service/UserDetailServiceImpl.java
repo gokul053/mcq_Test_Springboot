@@ -28,7 +28,6 @@ import com.concertidc.mcqtest.repository.DepartmentRepository;
 import com.concertidc.mcqtest.repository.UsersRepository;
 import com.concertidc.mcqtest.utils.JwtUtils;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
@@ -82,16 +81,16 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(ServiceConstantStore.USER_SAVED));
 	}
 
-	public Optional<Users> findByUsername(String username) {
-		return this.usersRepository.findByUsername(username);
-	}
+//	public Optional<Users> findByUsername(String username) {
+//		return this.usersRepository.findByUsername(username);
+//	}
 
 	//  Login Code
 	public LoginResponse login(String username) {
+		final Users users = this.usersRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException(ServiceConstantStore.USER_NOT_FOUND));
 		final String accessToken = this.jwtUtils.generateToken(username);
 		final String refreshToken = this.jwtUtils.generateRefreshToken(username);
-		final Users users = this.usersRepository.findByUsername(username)
-				.orElseThrow(() -> new EntityNotFoundException(ServiceConstantStore.USER_NOT_FOUND));
 		final LoginResponse userResponse = new LoginResponse();
 		userResponse.setAddress(users.getAddress());
 		userResponse.setDepartment(users.getDepartment().getDepartmentName());
@@ -104,7 +103,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		return userResponse;
 	}
 
-	//  Refresh Token Code
+	// Generating Access token via Refresh Token
 	public RefreshTokenResponse generateNewAccessToken(HttpServletRequest request) {
 		final RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse();
 		final String refreshToken = request.getHeader(AuthConstantStore.HEADER_STRING_REFRESH);
@@ -121,7 +120,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		if (username == null || password == null) {
 			throw new InputFormatErrorException();
 		}
-		if (findByUsername(username).isEmpty()) {
+		if (this.usersRepository.findByUsername(username).isEmpty()) {
 			throw new UsernameNotFoundException(ServiceConstantStore.USER_NOT_FOUND);
 		}
 	}
