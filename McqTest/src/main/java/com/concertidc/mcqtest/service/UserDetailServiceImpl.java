@@ -81,10 +81,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(ServiceConstantStore.USER_SAVED));
 	}
 
-//	public Optional<Users> findByUsername(String username) {
-//		return this.usersRepository.findByUsername(username);
-//	}
-
 	//  Login Code
 	public LoginResponse login(String username) {
 		final Users users = this.usersRepository.findByUsername(username)
