@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.concertidc.mcqtest.controller.CommonControllerTest" time="2.62" tests="6" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.concertidc.mcqtest.utils.JwtUtilsTest" time="1.164" tests="4" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -58,10 +58,8 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="testPasswordErrorWhileLogin" classname="com.concertidc.mcqtest.controller.CommonControllerTest" time="0.572"/>
-  <testcase name="testDisplayQuestions" classname="com.concertidc.mcqtest.controller.CommonControllerTest" time="0.015"/>
-  <testcase name="testLogin" classname="com.concertidc.mcqtest.controller.CommonControllerTest" time="0.363"/>
-  <testcase name="testNoQuestionsFoundForDisplaying" classname="com.concertidc.mcqtest.controller.CommonControllerTest" time="0.009"/>
-  <testcase name="testRefreshToken" classname="com.concertidc.mcqtest.controller.CommonControllerTest" time="0.019"/>
-  <testcase name="testUsernameNotFoundWhileLogin" classname="com.concertidc.mcqtest.controller.CommonControllerTest" time="0.013"/>
+  <testcase name="testGenerateToken" classname="com.concertidc.mcqtest.utils.JwtUtilsTest" time="0.008"/>
+  <testcase name="testBearerTokenParsing" classname="com.concertidc.mcqtest.utils.JwtUtilsTest" time="0.001"/>
+  <testcase name="testGetClaims" classname="com.concertidc.mcqtest.utils.JwtUtilsTest" time="0.005"/>
+  <testcase name="testTokenExceptions" classname="com.concertidc.mcqtest.utils.JwtUtilsTest" time="0.011"/>
 </testsuite>

@@ -58,6 +58,9 @@ public class UserAnswers {
 		this.answer = answer;
 	}
 
+	public UserAnswers() {
+		
+	}
 	public UserAnswers(Long answerId, @NotNull String answer, Questions questions, Users users) {
 		this.answerId = answerId;
 		this.answer = answer;

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.concertidc.mcqtest.controller.AdminControllerTest
 -------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.35 s - in com.concertidc.mcqtest.controller.AdminControllerTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.305 s - in com.concertidc.mcqtest.controller.AdminControllerTest
